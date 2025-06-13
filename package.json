@@ -14,10 +14,85 @@
   "contributes": {
     "commands": [
       {
-        "command": "experiment-helper.helloWorld",
-        "title": "Hello World"
+        "command": "eh.pythonVenvs.refresh",
+        "title": "Refresh Python Venvs",
+        "category": "Experiment Helper",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "eh.pythonVenvs.activate",
+        "title": "Activate Python Venv",
+        "category": "Experiment Helper",
+        "icon": "$(play)"
+      },
+      {
+        "command": "eh.pythonVenvs.deactivate",
+        "title": "Deactivate Python Venv",
+        "category": "Experiment Helper",
+        "icon": "$(primitive-square)"
       }
-    ]
+    ],
+    "views": {
+      "experiment-helper": [
+        {
+          "id": "eh.jobs",
+          "name": "Jobs",
+          "icon": "$(file)"
+        },
+        {
+          "id": "eh.pythonVenvs",
+          "name": "Python Venvs",
+          "icon": "$(file)"
+        },
+        {
+          "id": "eh.textTransforms",
+          "name": "Text Transforms",
+          "icon": "$(file)", 
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "eh.pythonVenvs.refresh",
+          "when": "view == eh.pythonVenvs",
+          "group": "navigation"
+        },
+        {
+          "command": "eh.pythonVenvs.deactivate",
+          "when": "view == eh.pythonVenvs",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "eh.pythonVenvs.activate",
+          "when": "viewItem == pythonVenvItem",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration":[
+      {
+        "title": "Experiment Helper",
+        "properties": {
+          "eh.pythonVenvs.venvFolderPrefix": {
+            "type": "string",
+            "default": ".venv"
+          }
+        }
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "experiment-helper",
+          "title": "Experiment Helper",
+          "icon": "$(check-all)"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
