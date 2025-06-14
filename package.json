@@ -46,9 +46,15 @@
       },
       {
         "command": "eh.jobSubmitOptions.addSubmitOption",
-        "title": "Add submit option", 
+        "title": "Add Submit Option", 
         "category": "Experiment Helper",
         "icon": "$(add)"
+      },
+      {
+        "command": "eh.jobSubmitOptions.deleteSubmitOption",
+        "title": "Delete Submit Option",
+        "category": "Experiment Helper",
+        "icon": "$(close)"
       },
       {
         "command": "eh.pythonVenvs.refresh",
@@ -137,6 +143,11 @@
         {
           "command": "eh.jobs.submit",
           "when": "viewItem == jobItem",
+          "group": "inline"
+        },
+        {
+          "command": "eh.jobSubmitOptions.deleteSubmitOption",
+          "when": "viewItem == jobSubmitOptionItem",
           "group": "inline"
         },
         {

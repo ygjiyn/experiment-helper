@@ -105,6 +105,14 @@ export function activate(context: vscode.ExtensionContext) {
 			jobSubmitOptions.addSubmitOptionCallback(jobSubmitOptionProvider);
 		}
 	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobSubmitOptions.deleteSubmitOption', (
+			itemToDelete?: jobSubmitOptions.JobSubmitOptionItem
+		) => {
+			jobSubmitOptions.deleteSubmitOptionCallback(jobSubmitOptionProvider, itemToDelete);
+		}
+	));
 }
 
 // This method is called when your extension is deactivated

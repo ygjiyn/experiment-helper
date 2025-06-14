@@ -48,6 +48,26 @@ export const addSubmitOptionCallback = async (
     jobSubmitOptionProvider.refresh();
 }
 
+export const deleteSubmitOptionCallback = async (
+    jobSubmitOptionProvider: JobSubmitOptionProvider,
+    itemToDelete?: JobSubmitOptionItem
+) => {
+    if (!itemToDelete) {
+        return;
+    }
+    const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
+        .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+    await vscode.workspace.getConfiguration().update(
+        'eh.jobSubmitOptions.submitOptionNamesAndContents',
+        submitOptionNamesAndContents
+            .filter(item => item.split(':')[0] !== itemToDelete.name)
+    );
+    if (itemToDelete.name === jobSubmitOptionProvider.getCurrentSubmitOption()?.name) {
+        jobSubmitOptionProvider.setCurrentSubmitOption(undefined);
+    }
+    jobSubmitOptionProvider.refresh();
+}
+
 export class JobSubmitOptionProvider 
     implements vscode.TreeDataProvider<JobSubmitOptionItem> {
     
@@ -101,8 +121,9 @@ export class JobSubmitOptionProvider
             this.jobSubmitOptionNameToItem.get(this.currentSubmitOptionName) : undefined;
     }
 
-    setCurrentSubmitOption(submitOptionItem: JobSubmitOptionItem) {
-        this.currentSubmitOptionName = submitOptionItem.name;
+    setCurrentSubmitOption(submitOptionItem: JobSubmitOptionItem | undefined) {
+        this.currentSubmitOptionName = 
+            submitOptionItem ? submitOptionItem.name : undefined;
         this.refresh();
     }
 }
