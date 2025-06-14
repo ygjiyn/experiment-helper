@@ -137,7 +137,7 @@ function submitOneJob(
     if (!jobId) {
         vscode.window.showWarningMessage('Could not obtain job id.');
     }
-    vscode.window.showInformationMessage(`Job submitted with id ${jobId}.`);
+    vscode.window.showInformationMessage(`Job ${scriptName} is submitted with id ${jobId}.`);
 }
 
 function deleteOneJob(workspaceRoot: string, item: JobItem) {

@@ -45,12 +45,6 @@
         "icon": "$(close-all)"
       },
       {
-        "command": "eh.jobSubmitOptions.setCurrentSubmitOption",
-        "title": "Set Current Submit Option",
-        "category": "Experiment Helper",
-        "icon": "$(check)"
-      },
-      {
         "command": "eh.jobSubmitOptions.addSubmitOption",
         "title": "Add submit option", 
         "category": "Experiment Helper",
@@ -143,11 +137,6 @@
         {
           "command": "eh.jobs.submit",
           "when": "viewItem == jobItem",
-          "group": "inline"
-        },
-        {
-          "command": "eh.jobSubmitOptions.setCurrentSubmitOption",
-          "when": "viewItem == jobSubmitOptionItem",
           "group": "inline"
         },
         {

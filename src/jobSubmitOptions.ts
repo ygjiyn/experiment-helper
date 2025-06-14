@@ -115,9 +115,18 @@ export class JobSubmitOptionItem extends vscode.TreeItem {
         isCurrent: boolean
     ) {
         super(name, vscode.TreeItemCollapsibleState.None);
-        this.label = isCurrent ? '(current) ' + name : name;
+        this.label = name;
         this.description = content;
         this.tooltip = content;
         this.contextValue = 'jobSubmitOptionItem';
+        this.iconPath = isCurrent ?
+            new vscode.ThemeIcon('circle-filled') :
+            new vscode.ThemeIcon('circle-outline');
+        // no need to register this command in package.json
+        this.command = {
+            command: "eh.jobSubmitOptions.setCurrentSubmitOption",
+            title: "Set Current Submit Option",
+            arguments: [this]
+        }
     }
 }
