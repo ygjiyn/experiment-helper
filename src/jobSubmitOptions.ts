@@ -11,6 +11,43 @@ export const setCurrentSubmitOptionCallback = (
     jobSubmitOptionProvider.setCurrentSubmitOption(submitOptionItem);
 }
 
+export const addSubmitOptionCallback = async (
+    jobSubmitOptionProvider: JobSubmitOptionProvider
+) => {
+    const newSubmitOptionString = await vscode.window.showInputBox({
+        title: 'Add new submit option',
+        value: (
+            '[submit option name]:' + 
+            '-S /bin/bash -cwd -l a100=1,s_vmem=100G -pe def_slot 10'
+        ),
+        prompt: (
+            'The submit option name is a unique identifier ' +
+            'of this option and should not replicate existing ones.'
+        ),
+        validateInput: (inputString) => {
+            const name = inputString.split(':')[0];
+            const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
+                .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+            const currentNames = submitOptionNamesAndContents
+                .map(submitOptionString => submitOptionString.split(':')[0]);
+            return currentNames.includes(name) ? `Name ${name} already exists.` : '';
+        }
+    });
+    if (!newSubmitOptionString) {
+        return;
+    }
+    const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
+        .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+    submitOptionNamesAndContents.push(newSubmitOptionString);
+    // note that the update method returns Thenable
+    // await until the update finished
+    await vscode.workspace.getConfiguration().update(
+        'eh.jobSubmitOptions.submitOptionNamesAndContents',
+        submitOptionNamesAndContents
+    );
+    jobSubmitOptionProvider.refresh();
+}
+
 export class JobSubmitOptionProvider 
     implements vscode.TreeDataProvider<JobSubmitOptionItem> {
     
@@ -46,7 +83,7 @@ export class JobSubmitOptionProvider
         if (!element) {
             this.jobSubmitOptionNameToItem = new Map();
             const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-                .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[]; 
+                .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
             submitOptionNamesAndContents.forEach((nameAndContent) => {
                 const [name, content] = nameAndContent.split(':');
                 this.jobSubmitOptionNameToItem.set(

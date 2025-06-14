@@ -51,6 +51,12 @@
         "icon": "$(check)"
       },
       {
+        "command": "eh.jobSubmitOptions.addSubmitOption",
+        "title": "Add submit option", 
+        "category": "Experiment Helper",
+        "icon": "$(add)"
+      },
+      {
         "command": "eh.pythonVenvs.refresh",
         "title": "Refresh Python Venvs",
         "category": "Experiment Helper",
@@ -110,6 +116,11 @@
         {
           "command": "eh.jobs.deleteMultiple",
           "when": "view == eh.jobs",
+          "group": "navigation"
+        },
+        {
+          "command": "eh.jobSubmitOptions.addSubmitOption",
+          "when": "view == eh.jobSubmitOptions",
           "group": "navigation"
         },
         {
