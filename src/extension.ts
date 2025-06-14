@@ -110,7 +110,15 @@ export function activate(context: vscode.ExtensionContext) {
 		'eh.jobSubmitOptions.deleteSubmitOption', (
 			itemToDelete?: jobSubmitOptions.JobSubmitOptionItem
 		) => {
-			jobSubmitOptions.deleteSubmitOptionCallback(jobSubmitOptionProvider, itemToDelete);
+			jobSubmitOptions.deleteSubmitOptionCallback(
+				jobSubmitOptionProvider, itemToDelete
+			);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobSubmitOptions.refresh', () => {
+			jobSubmitOptionProvider.refresh();
 		}
 	));
 }

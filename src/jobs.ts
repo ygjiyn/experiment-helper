@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 
+
 interface JobStatus {
     id: string,
     state: string
@@ -29,10 +30,17 @@ export const submitCallback = (
     if (!item) {
         return;
     }
+
     const scriptFolderRelativePath = vscode.workspace.getConfiguration()
         .get('eh.jobs.scriptFolderRelativePath') as string;
 
-    submitOneJob(workspaceRoot, scriptFolderRelativePath, item.label, submitOption);
+    submitOneJob(
+        workspaceRoot, 
+        scriptFolderRelativePath, 
+        item.label, 
+        submitOption,
+        item
+    );
 
     jobProvider.refresh();
 }
@@ -60,7 +68,13 @@ export const submitMultipleCallback = (
     const scriptFolderRelativePath = vscode.workspace.getConfiguration()
         .get('eh.jobs.scriptFolderRelativePath') as string;
     jobsSelection.forEach((jobItem) => {
-        submitOneJob(workspaceRoot, scriptFolderRelativePath, jobItem.label, submitOption);
+        submitOneJob(
+            workspaceRoot, 
+            scriptFolderRelativePath, 
+            jobItem.label, 
+            submitOption,
+            jobItem
+        );
     });
 
     jobProvider.refresh();
@@ -115,9 +129,14 @@ export const deleteMultipleCallback = (
 function submitOneJob(
     workspaceRoot: string, 
     scriptFolderRelativePath: string, 
-    scriptName:string, 
-    submitOption: string
+    scriptName: string, 
+    submitOption: string,
+    jobItem: JobItem
 ) {
+    if (jobItem.jobStatus) {
+        vscode.window.showInformationMessage(`Job ${jobItem.label} is in progress.`);
+        return;
+    }
     const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
     const scriptPath = path.join(scriptFolderPath, scriptName);
     const scriptBaseName = scriptName.slice(0, -'.sh'.length) 
@@ -142,7 +161,7 @@ function submitOneJob(
 
 function deleteOneJob(workspaceRoot: string, item: JobItem) {
     if (!item.jobStatus) {
-        vscode.window.showWarningMessage(`Job ${item.label} does not have a status.`);
+        vscode.window.showWarningMessage(`Job ${item.label} is not queued.`);
     } else {
         const qdelReturn = child_process.spawnSync('qdel', [item.jobStatus.id], {
             cwd: workspaceRoot,
@@ -241,5 +260,8 @@ export class JobItem extends vscode.TreeItem {
         this.contextValue = 'jobItem';
         this.description = jobStatus ? 
             `id: ${jobStatus.id}, state: ${jobStatus.state}` : ''
+        this.iconPath = (jobStatus && jobStatus.state === 'r') ?
+            new vscode.ThemeIcon('circle-filled') :
+            new vscode.ThemeIcon('circle-outline');
     }
 }

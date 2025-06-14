@@ -1,6 +1,7 @@
 {
   "name": "experiment-helper",
   "displayName": "Experiment Helper",
+  "publisher": "Jim",
   "description": "",
   "version": "0.0.1",
   "repository": {},
@@ -28,7 +29,7 @@
       },
       {
         "command": "eh.jobs.refresh",
-        "title": "Refresh Jobs",
+        "title": "Refresh \"Jobs\"",
         "category": "Experiment Helper",
         "icon": "$(refresh)"
       },
@@ -55,6 +56,12 @@
         "title": "Delete Submit Option",
         "category": "Experiment Helper",
         "icon": "$(close)"
+      },
+      {
+        "command": "eh.jobSubmitOptions.refresh",
+        "title": "Refresh \"Job Submit Options\"",
+        "category": "Experiment Helper",
+        "icon": "$(refresh)"
       },
       {
         "command": "eh.pythonVenvs.refresh",
@@ -106,22 +113,27 @@
         {
           "command": "eh.jobs.refresh",
           "when": "view == eh.jobs",
-          "group": "navigation"
+          "group": "navigation@2"
         },
         {
           "command": "eh.jobs.submitMultiple",
           "when": "view == eh.jobs",
-          "group": "navigation"
+          "group": "navigation@1"
         },
         {
           "command": "eh.jobs.deleteMultiple",
           "when": "view == eh.jobs",
-          "group": "navigation"
+          "group": "navigation@0"
         },
         {
           "command": "eh.jobSubmitOptions.addSubmitOption",
           "when": "view == eh.jobSubmitOptions",
-          "group": "navigation"
+          "group": "navigation@0"
+        },
+        {
+          "command": "eh.jobSubmitOptions.refresh",
+          "when": "view == eh.jobSubmitOptions",
+          "group": "navigation@1"
         },
         {
           "command": "eh.pythonVenvs.refresh",
