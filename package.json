@@ -3,6 +3,7 @@
   "displayName": "Experiment Helper",
   "description": "",
   "version": "0.0.1",
+  "repository": {},
   "engines": {
     "vscode": "^1.101.0"
   },
@@ -14,6 +15,36 @@
   "contributes": {
     "commands": [
       {
+        "command": "eh.jobs.submitMultiple",
+        "title": "Submit Multiple Jobs",
+        "category": "Experiment Helper",
+        "icon": "$(arrow-circle-up)"
+      },
+      {
+        "command": "eh.jobs.submit",
+        "title": "Submit Job",
+        "category": "Experiment Helper",
+        "icon": "$(arrow-up)"
+      },
+      {
+        "command": "eh.jobs.refresh",
+        "title": "Refresh Jobs",
+        "category": "Experiment Helper",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "eh.jobs.delete",
+        "title": "Delete Job",
+        "category": "Experiment Helper",
+        "icon": "$(close)"
+      },
+      {
+        "command": "eh.jobs.deleteMultiple",
+        "title": "Delete Multiple Jobs",
+        "category": "Experiment Helper",
+        "icon": "$(close-all)"
+      },
+      {
         "command": "eh.pythonVenvs.refresh",
         "title": "Refresh Python Venvs",
         "category": "Experiment Helper",
@@ -23,13 +54,13 @@
         "command": "eh.pythonVenvs.activate",
         "title": "Activate Python Venv",
         "category": "Experiment Helper",
-        "icon": "$(play)"
+        "icon": "$(check)"
       },
       {
         "command": "eh.pythonVenvs.deactivate",
         "title": "Deactivate Python Venv",
         "category": "Experiment Helper",
-        "icon": "$(primitive-square)"
+        "icon": "$(close)"
       }
     ],
     "views": {
@@ -55,6 +86,21 @@
     "menus": {
       "view/title": [
         {
+          "command": "eh.jobs.refresh",
+          "when": "view == eh.jobs",
+          "group": "navigation"
+        },
+        {
+          "command": "eh.jobs.submitMultiple",
+          "when": "view == eh.jobs",
+          "group": "navigation"
+        },
+        {
+          "command": "eh.jobs.deleteMultiple",
+          "when": "view == eh.jobs",
+          "group": "navigation"
+        },
+        {
           "command": "eh.pythonVenvs.refresh",
           "when": "view == eh.pythonVenvs",
           "group": "navigation"
@@ -67,6 +113,16 @@
       ],
       "view/item/context": [
         {
+          "command": "eh.jobs.delete",
+          "when": "viewItem == jobItem",
+          "group": "inline"
+        },
+        {
+          "command": "eh.jobs.submit",
+          "when": "viewItem == jobItem",
+          "group": "inline"
+        },
+        {
           "command": "eh.pythonVenvs.activate",
           "when": "viewItem == pythonVenvItem",
           "group": "inline"
@@ -77,6 +133,10 @@
       {
         "title": "Experiment Helper",
         "properties": {
+          "eh.jobs.scriptFolderRelativePath": {
+            "type": "string",
+            "default": "scripts"
+          },
           "eh.pythonVenvs.venvFolderPrefix": {
             "type": "string",
             "default": ".venv"
