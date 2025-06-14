@@ -11,6 +11,7 @@ interface JobStatus {
 export const submitCallback = (
     workspaceRoot: string | undefined, 
     jobProvider: JobProvider, 
+    submitOption: string | undefined,
     item?: JobItem
 ) => {
     if (!workspaceRoot) {
@@ -19,16 +20,19 @@ export const submitCallback = (
         );
         return;
     }
+    if (!submitOption) {
+        vscode.window.showInformationMessage(
+            'Select a submit option first.'
+        );
+        return;
+    }
     if (!item) {
         return;
     }
     const scriptFolderRelativePath = vscode.workspace.getConfiguration()
         .get('eh.jobs.scriptFolderRelativePath') as string;
-    const scriptPath = path.join(
-        workspaceRoot, scriptFolderRelativePath, item.label
-    );
 
-    submitOneJob(workspaceRoot, scriptPath);
+    submitOneJob(workspaceRoot, scriptFolderRelativePath, item.label, submitOption);
 
     jobProvider.refresh();
 }
@@ -37,10 +41,17 @@ export const submitMultipleCallback = (
     workspaceRoot: string | undefined, 
     jobTreeView: vscode.TreeView<JobItem>, 
     jobProvider: JobProvider, 
+    submitOption: string | undefined
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
             'Current workspace is empty. Open a workspace first.'
+        );
+        return;
+    }
+    if (!submitOption) {
+        vscode.window.showInformationMessage(
+            'Select a submit option first.'
         );
         return;
     }
@@ -49,10 +60,7 @@ export const submitMultipleCallback = (
     const scriptFolderRelativePath = vscode.workspace.getConfiguration()
         .get('eh.jobs.scriptFolderRelativePath') as string;
     jobsSelection.forEach((jobItem) => {
-        const scriptPath = path.join(
-            workspaceRoot, scriptFolderRelativePath, jobItem.label
-        );
-        submitOneJob(workspaceRoot, scriptPath);
+        submitOneJob(workspaceRoot, scriptFolderRelativePath, jobItem.label, submitOption);
     });
 
     jobProvider.refresh();
@@ -93,7 +101,7 @@ export const deleteMultipleCallback = (
         );
         return;
     }
-    
+
     const jobsSelection = jobTreeView.selection;
     jobsSelection.forEach((jobItem) => {
         deleteOneJob(workspaceRoot, jobItem);
@@ -104,8 +112,24 @@ export const deleteMultipleCallback = (
 
 
 
-function submitOneJob(workspaceRoot: string, scriptPath: string) {
-    const outputLines = child_process.spawnSync('qsub', [scriptPath], {
+function submitOneJob(
+    workspaceRoot: string, 
+    scriptFolderRelativePath: string, 
+    scriptName:string, 
+    submitOption: string
+) {
+    const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
+    const scriptPath = path.join(scriptFolderPath, scriptName);
+    const scriptBaseName = scriptName.slice(0, -'.sh'.length) 
+    const scriptOutPath = path.join(scriptFolderPath, scriptBaseName + '_o.txt')
+    const scriptErrorPath = path.join(scriptFolderPath, scriptBaseName + '_e.txt')
+
+    const outputLines = child_process.spawnSync('qsub', [
+        submitOption, 
+        `-o ${scriptOutPath}`,
+        `-e ${scriptErrorPath}`,
+        scriptPath
+    ], {
         cwd: workspaceRoot,
         shell: '/bin/bash',
     }).stdout.toString().trim().split('\n');

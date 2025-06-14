@@ -15,16 +15,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "eh.jobs.submitMultiple",
-        "title": "Submit Multiple Jobs",
-        "category": "Experiment Helper",
-        "icon": "$(arrow-circle-up)"
-      },
-      {
         "command": "eh.jobs.submit",
         "title": "Submit Job",
         "category": "Experiment Helper",
         "icon": "$(arrow-up)"
+      },
+      {
+        "command": "eh.jobs.submitMultiple",
+        "title": "Submit Multiple Jobs",
+        "category": "Experiment Helper",
+        "icon": "$(arrow-circle-up)"
       },
       {
         "command": "eh.jobs.refresh",
@@ -43,6 +43,12 @@
         "title": "Delete Multiple Jobs",
         "category": "Experiment Helper",
         "icon": "$(close-all)"
+      },
+      {
+        "command": "eh.jobSubmitOptions.setCurrentSubmitOption",
+        "title": "Set Current Submit Option",
+        "category": "Experiment Helper",
+        "icon": "$(check)"
       },
       {
         "command": "eh.pythonVenvs.refresh",
@@ -71,9 +77,15 @@
           "icon": "$(file)"
         },
         {
+          "id": "eh.jobSubmitOptions",
+          "name": "Job Submit Options",
+          "icon": "$(file)"
+        },
+        {
           "id": "eh.pythonVenvs",
           "name": "Python Venvs",
-          "icon": "$(file)"
+          "icon": "$(file)",
+          "visibility": "collapsed"
         },
         {
           "id": "eh.textTransforms",
@@ -123,6 +135,11 @@
           "group": "inline"
         },
         {
+          "command": "eh.jobSubmitOptions.setCurrentSubmitOption",
+          "when": "viewItem == jobSubmitOptionItem",
+          "group": "inline"
+        },
+        {
           "command": "eh.pythonVenvs.activate",
           "when": "viewItem == pythonVenvItem",
           "group": "inline"
@@ -136,6 +153,17 @@
           "eh.jobs.scriptFolderRelativePath": {
             "type": "string",
             "default": "scripts"
+          },
+          "eh.jobSubmitOptions.submitOptionNamesAndContents": {
+            "type": "array",
+            "default": [
+              "h100:-S /bin/bash -cwd -l h100=1,s_vmem=100G -pe def_slot 10",
+              "a100:-S /bin/bash -cwd -l a100=1,s_vmem=100G -pe def_slot 10",
+              "cpu:-S /bin/bash -cwd -l s_vmem=20G -pe def_slot 3"
+            ],
+            "items": {
+              "type": "string"
+            }
           },
           "eh.pythonVenvs.venvFolderPrefix": {
             "type": "string",

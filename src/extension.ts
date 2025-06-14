@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as pythonVenvs from './pythonVenvs';
 import * as jobs from './jobs';
+import * as jobSubmitOptions from './jobSubmitOptions';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -15,7 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const pythonVenvProvider = new pythonVenvs.PythonVenvProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'eh.pythonVenvs', pythonVenvProvider));
+		'eh.pythonVenvs', pythonVenvProvider
+	));
 
 	const jobProvider = new jobs.JobProvider(workspaceRoot);
 	const jobTreeView = vscode.window.createTreeView('eh.jobs', {
@@ -23,6 +25,12 @@ export function activate(context: vscode.ExtensionContext) {
 		canSelectMany: true
 	});
 	context.subscriptions.push(jobTreeView);
+
+	const jobSubmitOptionProvider = new 
+		jobSubmitOptions.JobSubmitOptionProvider(workspaceRoot);
+	context.subscriptions.push(vscode.window.registerTreeDataProvider(
+		'eh.jobSubmitOptions', jobSubmitOptionProvider
+	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.pythonVenvs.refresh', () => {
@@ -42,13 +50,27 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.submit', (item?: jobs.JobItem) => {
-			jobs.submitCallback(workspaceRoot, jobProvider, item);
+			const currentSubmitOption = jobSubmitOptionProvider.getCurrentSubmitOption();
+
+			jobs.submitCallback(
+				workspaceRoot, 
+				jobProvider, 
+				currentSubmitOption ? currentSubmitOption.content : undefined,
+				item
+			);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.submitMultiple', () => {
-			jobs.submitMultipleCallback(workspaceRoot, jobTreeView, jobProvider);
+			const currentSubmitOption = jobSubmitOptionProvider.getCurrentSubmitOption();
+
+			jobs.submitMultipleCallback(
+				workspaceRoot, 
+				jobTreeView, 
+				jobProvider,
+				currentSubmitOption ? currentSubmitOption.content : undefined
+			);
 		}
 	));
 
@@ -67,6 +89,14 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.deleteMultiple', () => {
 			jobs.deleteMultipleCallback(workspaceRoot, jobTreeView, jobProvider);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobSubmitOptions.setCurrentSubmitOption', (
+			item?: jobSubmitOptions.JobSubmitOptionItem
+		) => {
+			jobSubmitOptions.setCurrentSubmitOptionCallback(jobSubmitOptionProvider, item);
 		}
 	));
 }
