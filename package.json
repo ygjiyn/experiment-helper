@@ -25,7 +25,7 @@
         "command": "eh.jobs.submitMultiple",
         "title": "Submit Multiple Jobs",
         "category": "Experiment Helper",
-        "icon": "$(arrow-circle-up)"
+        "icon": "$(arrow-up)"
       },
       {
         "command": "eh.jobs.refresh",
@@ -43,7 +43,7 @@
         "command": "eh.jobs.deleteMultiple",
         "title": "Delete Multiple Jobs",
         "category": "Experiment Helper",
-        "icon": "$(close-all)"
+        "icon": "$(close)"
       },
       {
         "command": "eh.jobs.showJobOutput",

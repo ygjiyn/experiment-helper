@@ -157,6 +157,36 @@ export const showJobOutputOrErrorCallback = async (
     await vscode.window.showTextDocument(textDocument);
 }
 
+export const showJobScriptCallback = async (
+    workspaceRoot: string | undefined, 
+    jobItem?: JobItem
+) => {
+    if (!workspaceRoot) {
+        vscode.window.showInformationMessage(
+            'Current workspace is empty. Open a workspace first.'
+        );
+        return;
+    }
+    if (!jobItem) {
+        return;
+    }
+    const scriptFolderRelativePath = vscode.workspace.getConfiguration()
+        .get('eh.jobs.scriptFolderRelativePath') as string;
+    const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
+    const scriptPath = path.join(scriptFolderPath, jobItem.label);
+
+    try {
+        fs.accessSync(scriptPath);
+    } catch (err) {
+        vscode.window.showInformationMessage(
+            `File ${jobItem.label} does not exist.`
+        );
+        return;
+    }
+
+    const textDocument = await vscode.workspace.openTextDocument(scriptPath);
+    await vscode.window.showTextDocument(textDocument);
+}
 
 function submitOneJob(
     workspaceRoot: string, 
@@ -295,5 +325,10 @@ export class JobItem extends vscode.TreeItem {
         this.iconPath = (jobStatus && jobStatus.state === 'r') ?
             new vscode.ThemeIcon('circle-filled') :
             new vscode.ThemeIcon('circle-outline');
+        this.command = {
+            command: 'eh.jobs.showJobScript',
+            title: 'Show Job Script',
+            arguments: [this]
+        }
     }
 }

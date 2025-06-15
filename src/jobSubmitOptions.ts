@@ -145,8 +145,8 @@ export class JobSubmitOptionItem extends vscode.TreeItem {
             new vscode.ThemeIcon('circle-outline');
         // no need to register this command in package.json
         this.command = {
-            command: "eh.jobSubmitOptions.setCurrentSubmitOption",
-            title: "Set Current Submit Option",
+            command: 'eh.jobSubmitOptions.setCurrentSubmitOption',
+            title: 'Set Current Submit Option',
             arguments: [this]
         }
     }
