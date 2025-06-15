@@ -188,6 +188,34 @@ export const showJobScriptCallback = async (
     await vscode.window.showTextDocument(textDocument);
 }
 
+export const createJobScriptFromCurrentJobScript = (
+    workspaceRoot: string | undefined, 
+    jobProvider: JobProvider
+) => {
+    if (!workspaceRoot) {
+        vscode.window.showInformationMessage(
+            'Current workspace is empty. Open a workspace first.'
+        );
+        return;
+    }
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage(
+            'No active editor.'
+        );
+        return;
+    }
+
+    const document = editor.document;
+    const selection = editor.selection;
+
+    const selectionStartOffset = document.offsetAt(selection.start);
+    const selectionEndOffset = document.offsetAt(selection.end);
+
+    
+}
+
 function submitOneJob(
     workspaceRoot: string, 
     scriptFolderRelativePath: string, 
