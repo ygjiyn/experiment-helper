@@ -93,6 +93,18 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobs.showJobOutput', (item?: jobs.JobItem) => {
+			jobs.showJobOutputOrErrorCallback(workspaceRoot, '_o.txt', item);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobs.showJobError', (item?: jobs.JobItem) => {
+			jobs.showJobOutputOrErrorCallback(workspaceRoot, '_e.txt', item);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobSubmitOptions.setCurrentSubmitOption', (
 			item?: jobSubmitOptions.JobSubmitOptionItem
 		) => {

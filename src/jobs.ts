@@ -124,6 +124,38 @@ export const deleteMultipleCallback = (
     jobProvider.refresh();
 }
 
+export const showJobOutputOrErrorCallback = async (
+    workspaceRoot: string | undefined, 
+    logSuffix: string,
+    jobItem?: JobItem
+) => {
+    if (!workspaceRoot) {
+        vscode.window.showInformationMessage(
+            'Current workspace is empty. Open a workspace first.'
+        );
+        return;
+    }
+    if (!jobItem) {
+        return;
+    }
+    const scriptFolderRelativePath = vscode.workspace.getConfiguration()
+        .get('eh.jobs.scriptFolderRelativePath') as string;
+    const scriptBaseName = jobItem.label.slice(0, -'.sh'.length);
+    const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
+    const scriptLogPath = path.join(scriptFolderPath, scriptBaseName + logSuffix);
+
+    try {
+        fs.accessSync(scriptLogPath);
+    } catch (err) {
+        vscode.window.showInformationMessage(
+            `Log file ${scriptBaseName + logSuffix} does not exist.`
+        );
+        return;
+    }
+    
+    const textDocument = await vscode.workspace.openTextDocument(scriptLogPath);
+    await vscode.window.showTextDocument(textDocument);
+}
 
 
 function submitOneJob(
@@ -139,9 +171,9 @@ function submitOneJob(
     }
     const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
     const scriptPath = path.join(scriptFolderPath, scriptName);
-    const scriptBaseName = scriptName.slice(0, -'.sh'.length) 
-    const scriptOutPath = path.join(scriptFolderPath, scriptBaseName + '_o.txt')
-    const scriptErrorPath = path.join(scriptFolderPath, scriptBaseName + '_e.txt')
+    const scriptBaseName = scriptName.slice(0, -'.sh'.length);
+    const scriptOutPath = path.join(scriptFolderPath, scriptBaseName + '_o.txt');
+    const scriptErrorPath = path.join(scriptFolderPath, scriptBaseName + '_e.txt');
 
     const outputLines = child_process.spawnSync('qsub', [
         submitOption, 

@@ -46,6 +46,18 @@
         "icon": "$(close-all)"
       },
       {
+        "command": "eh.jobs.showJobOutput",
+        "title": "Show Job Output",
+        "category": "Experiment Helper",
+        "icon": "$(pass)"
+      },
+      {
+        "command": "eh.jobs.showJobError",
+        "title": "Show Job Error",
+        "category": "Experiment Helper",
+        "icon": "$(error)"
+      },
+      {
         "command": "eh.jobSubmitOptions.addSubmitOption",
         "title": "Add Submit Option", 
         "category": "Experiment Helper",
@@ -150,12 +162,22 @@
         {
           "command": "eh.jobs.delete",
           "when": "viewItem == jobItem",
-          "group": "inline"
+          "group": "inline@2"
         },
         {
           "command": "eh.jobs.submit",
           "when": "viewItem == jobItem",
-          "group": "inline"
+          "group": "inline@3"
+        },
+        {
+          "command": "eh.jobs.showJobOutput",
+          "when": "viewItem == jobItem",
+          "group": "inline@0"
+        },
+        {
+          "command": "eh.jobs.showJobError",
+          "when": "viewItem == jobItem",
+          "group": "inline@1"
         },
         {
           "command": "eh.jobSubmitOptions.deleteSubmitOption",
