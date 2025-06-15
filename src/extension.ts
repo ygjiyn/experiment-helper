@@ -111,6 +111,12 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobs.createJobScriptFromCurrentJobScript', () => {
+			jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot, jobProvider);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobSubmitOptions.setCurrentSubmitOption', (
 			item?: jobSubmitOptions.JobSubmitOptionItem
 		) => {

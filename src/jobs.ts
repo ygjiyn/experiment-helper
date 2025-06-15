@@ -188,7 +188,7 @@ export const showJobScriptCallback = async (
     await vscode.window.showTextDocument(textDocument);
 }
 
-export const createJobScriptFromCurrentJobScript = (
+export const createJobScriptFromCurrentJobScriptCallback = async (
     workspaceRoot: string | undefined, 
     jobProvider: JobProvider
 ) => {
@@ -209,11 +209,45 @@ export const createJobScriptFromCurrentJobScript = (
 
     const document = editor.document;
     const selection = editor.selection;
+    const currentJobScriptPath = document.fileName;
+    const currentJobScriptPathBase = currentJobScriptPath.slice(0, -'.sh'.length);
 
-    const selectionStartOffset = document.offsetAt(selection.start);
-    const selectionEndOffset = document.offsetAt(selection.end);
+    const startOffset = document.offsetAt(selection.start);
+    const endOffset = document.offsetAt(selection.end);
 
-    
+    const valuesToUseString = await vscode.window.showInputBox({
+        title: 'Type values used for replacement',
+        placeHolder: 'value1[]value2[]value3[]...',
+        prompt: 'Values are separated by "[]"'
+    });
+    if (!valuesToUseString) {
+        return;
+    }
+    const valuesToUse = valuesToUseString.split('[]');
+
+    const newJobScriptsSuffix = await vscode.window.showInputBox({
+        title: 'Type the suffix used in the names of new scripts',
+        prompt: (
+            'Example: current script "job.sh", suffix "suffix", ' +
+            'then the name of each new script is "job_suffix_[values].sh"'
+        )
+    });
+    if (!newJobScriptsSuffix) {
+        return;
+    }
+
+    valuesToUse.forEach((value) => {
+        const newJobScriptPath = 
+            `${currentJobScriptPathBase}_${newJobScriptsSuffix}_${value}.sh`;
+        fs.copyFileSync(currentJobScriptPath, newJobScriptPath);
+        const newScript = fs.readFileSync(newJobScriptPath, 'utf8');
+        const modifiedNewScript = newScript.slice(0, startOffset) + 
+            value + newScript.slice(endOffset);
+        fs.writeFileSync(newJobScriptPath, modifiedNewScript);
+        vscode.window.showInformationMessage(`Created: ${newJobScriptPath}`);
+    });
+
+    jobProvider.refresh();
 }
 
 function submitOneJob(

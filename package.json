@@ -58,6 +58,12 @@
         "icon": "$(error)"
       },
       {
+        "command": "eh.jobs.createJobScriptFromCurrentJobScript",
+        "title": "Create Job Script From Current Job Script",
+        "category": "Experiment Helper",
+        "icon": "$(files)"
+      },
+      {
         "command": "eh.jobSubmitOptions.addSubmitOption",
         "title": "Add Submit Option", 
         "category": "Experiment Helper",
@@ -125,15 +131,20 @@
         {
           "command": "eh.jobs.refresh",
           "when": "view == eh.jobs",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "eh.jobs.submitMultiple",
           "when": "view == eh.jobs",
-          "group": "navigation@1"
+          "group": "navigation@2"
         },
         {
           "command": "eh.jobs.deleteMultiple",
+          "when": "view == eh.jobs",
+          "group": "navigation@1"
+        },
+        {
+          "command": "eh.jobs.createJobScriptFromCurrentJobScript",
           "when": "view == eh.jobs",
           "group": "navigation@0"
         },
