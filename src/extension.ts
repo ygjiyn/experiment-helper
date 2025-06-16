@@ -51,44 +51,44 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.submit', (item?: jobs.JobItem) => {
 			const currentSubmitOption = jobSubmitOptionProvider.getCurrentSubmitOption();
-
 			jobs.submitCallback(
-				workspaceRoot, 
-				jobProvider, 
-				currentSubmitOption ? currentSubmitOption.content : undefined,
+				workspaceRoot,
+				currentSubmitOption?.content,
 				item
 			);
+			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.submitMultiple', () => {
 			const currentSubmitOption = jobSubmitOptionProvider.getCurrentSubmitOption();
-
 			jobs.submitMultipleCallback(
 				workspaceRoot, 
-				jobTreeView, 
-				jobProvider,
-				currentSubmitOption ? currentSubmitOption.content : undefined
+				currentSubmitOption?.content,
+				jobTreeView.selection
 			);
+			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.refresh', () => {
-			jobs.refreshCallback(jobProvider);
+			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.delete', (item?: jobs.JobItem) => {
-			jobs.deleteCallback(workspaceRoot, jobProvider, item);
+			jobs.deleteCallback(workspaceRoot, item);
+			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.deleteMultiple', () => {
-			jobs.deleteMultipleCallback(workspaceRoot, jobTreeView, jobProvider);
+			jobs.deleteMultipleCallback(workspaceRoot, jobTreeView.selection);
+			jobProvider.refresh();
 		}
 	));
 
@@ -112,7 +112,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.createJobScriptFromCurrentJobScript', () => {
-			jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot, jobProvider);
+			jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
+			jobProvider.refresh();
 		}
 	));
 

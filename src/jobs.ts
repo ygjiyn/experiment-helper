@@ -10,14 +10,13 @@ interface JobStatus {
 }
 
 export const submitCallback = (
-    workspaceRoot: string | undefined, 
-    jobProvider: JobProvider, 
+    workspaceRoot: string | undefined,
     submitOption: string | undefined,
-    item?: JobItem
+    item?: JobFolderItem | JobItem
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
@@ -27,33 +26,25 @@ export const submitCallback = (
         );
         return;
     }
-    if (!item) {
+    if (!item || item instanceof JobFolderItem) {
         return;
     }
-
-    const scriptFolderRelativePath = vscode.workspace.getConfiguration()
-        .get('eh.jobs.scriptFolderRelativePath') as string;
-
+    
     submitOneJob(
         workspaceRoot, 
-        scriptFolderRelativePath, 
-        item.label, 
         submitOption,
         item
     );
-
-    jobProvider.refresh();
 }
 
 export const submitMultipleCallback = (
-    workspaceRoot: string | undefined, 
-    jobTreeView: vscode.TreeView<JobItem>, 
-    jobProvider: JobProvider, 
-    submitOption: string | undefined
+    workspaceRoot: string | undefined,  
+    submitOption: string | undefined,
+    itemSelection: readonly (JobFolderItem | JobItem)[]
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
@@ -64,30 +55,20 @@ export const submitMultipleCallback = (
         return;
     }
 
-    const jobsSelection = jobTreeView.selection;
-    const scriptFolderRelativePath = vscode.workspace.getConfiguration()
-        .get('eh.jobs.scriptFolderRelativePath') as string;
-    jobsSelection.forEach((jobItem) => {
-        submitOneJob(
-            workspaceRoot, 
-            scriptFolderRelativePath, 
-            jobItem.label, 
-            submitOption,
-            jobItem
-        );
+    itemSelection.forEach((item) => {
+        if (item instanceof JobItem) {
+            submitOneJob(
+                workspaceRoot, 
+                submitOption,
+                item
+            );
+        }
     });
-
-    jobProvider.refresh();
-}
-
-export const refreshCallback = (provider: JobProvider) => {
-    provider.refresh();
 }
 
 export const deleteCallback = (
-    workspaceRoot: string | undefined, 
-    jobProvider: JobProvider, 
-    item?: JobItem
+    workspaceRoot: string | undefined,  
+    item?: JobFolderItem | JobItem
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
@@ -95,39 +76,35 @@ export const deleteCallback = (
         );
         return;
     }
-    if (!item) {
+    if (!item || item instanceof JobFolderItem) {
         return;
     }
 
     deleteOneJob(workspaceRoot, item);
-
-    jobProvider.refresh();
 }
 
 export const deleteMultipleCallback = (
     workspaceRoot: string | undefined, 
-    jobTreeView: vscode.TreeView<JobItem>, 
-    jobProvider: JobProvider, 
+    itemSelection: readonly (JobFolderItem | JobItem)[]
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
 
-    const jobsSelection = jobTreeView.selection;
-    jobsSelection.forEach((jobItem) => {
-        deleteOneJob(workspaceRoot, jobItem);
+    itemSelection.forEach((item) => {
+        if (item instanceof JobItem) {
+            deleteOneJob(workspaceRoot, item);
+        }
     });
-
-    jobProvider.refresh();
 }
 
 export const showJobOutputOrErrorCallback = async (
     workspaceRoot: string | undefined, 
     logSuffix: string,
-    jobItem?: JobItem
+    item?: JobFolderItem | JobItem
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
@@ -135,20 +112,18 @@ export const showJobOutputOrErrorCallback = async (
         );
         return;
     }
-    if (!jobItem) {
+    if (!item || item instanceof JobFolderItem) {
         return;
     }
-    const scriptFolderRelativePath = vscode.workspace.getConfiguration()
-        .get('eh.jobs.scriptFolderRelativePath') as string;
-    const scriptBaseName = jobItem.label.slice(0, -'.sh'.length);
-    const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
-    const scriptLogPath = path.join(scriptFolderPath, scriptBaseName + logSuffix);
+    
+    const scriptBasePath = item.itemPath.slice(0, -'.sh'.length);
+    const scriptLogPath = scriptBasePath + logSuffix;
 
     try {
         fs.accessSync(scriptLogPath);
     } catch (err) {
         vscode.window.showInformationMessage(
-            `Log file ${scriptBaseName + logSuffix} does not exist.`
+            `Log file ${scriptLogPath} does not exist.`
         );
         return;
     }
@@ -159,7 +134,7 @@ export const showJobOutputOrErrorCallback = async (
 
 export const showJobScriptCallback = async (
     workspaceRoot: string | undefined, 
-    jobItem?: JobItem
+    item?: JobFolderItem | JobItem
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
@@ -167,34 +142,29 @@ export const showJobScriptCallback = async (
         );
         return;
     }
-    if (!jobItem) {
+    if (!item || item instanceof JobFolderItem) {
         return;
     }
-    const scriptFolderRelativePath = vscode.workspace.getConfiguration()
-        .get('eh.jobs.scriptFolderRelativePath') as string;
-    const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
-    const scriptPath = path.join(scriptFolderPath, jobItem.label);
 
     try {
-        fs.accessSync(scriptPath);
+        fs.accessSync(item.itemPath);
     } catch (err) {
         vscode.window.showInformationMessage(
-            `File ${jobItem.label} does not exist.`
+            `File ${item.itemPath} does not exist.`
         );
         return;
     }
 
-    const textDocument = await vscode.workspace.openTextDocument(scriptPath);
+    const textDocument = await vscode.workspace.openTextDocument(item.itemPath);
     await vscode.window.showTextDocument(textDocument);
 }
 
 export const createJobScriptFromCurrentJobScriptCallback = async (
     workspaceRoot: string | undefined, 
-    jobProvider: JobProvider
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
@@ -202,7 +172,7 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
         vscode.window.showInformationMessage(
-            'No active editor.'
+            'Open an editor first.'
         );
         return;
     }
@@ -246,14 +216,10 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
         fs.writeFileSync(newJobScriptPath, modifiedNewScript);
         vscode.window.showInformationMessage(`Created: ${newJobScriptPath}`);
     });
-
-    jobProvider.refresh();
 }
 
 function submitOneJob(
-    workspaceRoot: string, 
-    scriptFolderRelativePath: string, 
-    scriptName: string, 
+    workspaceRoot: string,
     submitOption: string,
     jobItem: JobItem
 ) {
@@ -261,17 +227,15 @@ function submitOneJob(
         vscode.window.showInformationMessage(`Job ${jobItem.label} is in progress.`);
         return;
     }
-    const scriptFolderPath = path.join(workspaceRoot, scriptFolderRelativePath);
-    const scriptPath = path.join(scriptFolderPath, scriptName);
-    const scriptBaseName = scriptName.slice(0, -'.sh'.length);
-    const scriptOutPath = path.join(scriptFolderPath, scriptBaseName + '_o.txt');
-    const scriptErrorPath = path.join(scriptFolderPath, scriptBaseName + '_e.txt');
+    const scriptBasePath = jobItem.itemPath.slice(0, -'.sh'.length);
+    const scriptOutPath = scriptBasePath + '_o.txt';
+    const scriptErrorPath = scriptBasePath + '_e.txt';
 
     const outputLines = child_process.spawnSync('qsub', [
         submitOption, 
         `-o ${scriptOutPath}`,
         `-e ${scriptErrorPath}`,
-        scriptPath
+        jobItem.itemPath
     ], {
         cwd: workspaceRoot,
         shell: '/bin/bash',
@@ -280,14 +244,16 @@ function submitOneJob(
     if (!jobId) {
         vscode.window.showWarningMessage('Could not obtain job id.');
     }
-    vscode.window.showInformationMessage(`Job ${scriptName} is submitted with id ${jobId}.`);
+    vscode.window.showInformationMessage(
+        `Job ${jobItem.label} is submitted with id ${jobId}.`
+    );
 }
 
-function deleteOneJob(workspaceRoot: string, item: JobItem) {
-    if (!item.jobStatus) {
-        vscode.window.showWarningMessage(`Job ${item.label} is not queued.`);
+function deleteOneJob(workspaceRoot: string, jobItem: JobItem) {
+    if (!jobItem.jobStatus) {
+        vscode.window.showWarningMessage(`Job ${jobItem.label} is not queued.`);
     } else {
-        const qdelReturn = child_process.spawnSync('qdel', [item.jobStatus.id], {
+        const qdelReturn = child_process.spawnSync('qdel', [jobItem.jobStatus.id], {
             cwd: workspaceRoot,
             shell: '/bin/bash',
         });
@@ -297,9 +263,9 @@ function deleteOneJob(workspaceRoot: string, item: JobItem) {
     }
 }
 
-export class JobProvider implements vscode.TreeDataProvider<JobItem> {
+export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobItem> {
     private readonly onDidChangeTreeDataEventEmitter = new vscode.EventEmitter
-        <void | JobItem | JobItem[] | null | undefined>();
+        <void | JobFolderItem | JobItem | (JobFolderItem | JobItem)[] | null | undefined>();
     onDidChangeTreeData = this.onDidChangeTreeDataEventEmitter.event;
 
     constructor(public readonly workspaceRoot: string | undefined) {}
@@ -308,40 +274,54 @@ export class JobProvider implements vscode.TreeDataProvider<JobItem> {
         this.onDidChangeTreeDataEventEmitter.fire();
     }
 
-    getTreeItem(element: JobItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    getTreeItem(element: JobFolderItem | JobItem) {
         return element;
     }
 
-    getChildren(element?: JobItem | undefined): vscode.ProviderResult<JobItem[]> {
+    getChildren(element?: JobFolderItem | JobItem | undefined) {
         if (!this.workspaceRoot) {
             vscode.window.showInformationMessage(
-                'Current workspace is empty. Open a workspace first.'
+                'Current workspace is empty.'
             );
             return Promise.resolve([]);
         }
-        if (!element) {
-            const scriptFolderRelativePath = vscode.workspace.getConfiguration()
-                .get('eh.jobs.scriptFolderRelativePath') as string;
-            const scriptFolderPath = path.join(
-                this.workspaceRoot, scriptFolderRelativePath
-            );
-            const jobFileNameList = fs.readdirSync(scriptFolderPath)
-                .filter(fileName => fileName.endsWith('.sh'));
-            const jobItemList: JobItem[] = [];
 
-            const jobNameToStatus = this.getCurrentJobsStatus();
-            
-            jobFileNameList.forEach((fileName) => {
-                const filePath = path.join(scriptFolderPath, fileName);
-                const thisJobStatus = jobNameToStatus.get(filePath);
-                jobItemList.push(new JobItem(fileName, thisJobStatus));
-            })
-            
-            return Promise.resolve(jobItemList);
+        const scriptFolderRelativePath = vscode.workspace.getConfiguration()
+            .get('eh.jobs.scriptFolderRelativePath') as string;
+        const scriptFolderPath = path.join(
+            this.workspaceRoot, scriptFolderRelativePath
+        );
+        const jobNameToStatus = this.getCurrentJobNameToStatus();
+
+        const returnList: (JobFolderItem | JobItem)[] = [];
+        if (!element) {
+            this.readAndHanderCurrentPath(scriptFolderPath, jobNameToStatus, returnList);
+        } else if (element instanceof JobFolderItem) {
+            this.readAndHanderCurrentPath(element.itemPath, jobNameToStatus, returnList)
         }
+        return Promise.resolve(returnList);
     }
 
-    getCurrentJobsStatus(): Map<string, JobStatus> {
+    private readAndHanderCurrentPath(
+        currentPath: string, 
+        jobNameToStatus: Map<string, JobStatus>,
+        returnList: (JobFolderItem | JobItem)[]
+    ) {
+        fs.readdirSync(currentPath, { withFileTypes: true }).forEach((dirent) => {
+            const thisItemPath = path.join(currentPath, dirent.name);
+            if (dirent.isDirectory()) {
+                returnList.push(new JobFolderItem(dirent.name, thisItemPath));
+            } else if (dirent.name.endsWith('.sh')) {
+                // TODO 
+                // currently we only handle jobs submitted using this extension
+                // i.e., those whose job names are the absolute paths of scripts
+                const thisJobStatus = jobNameToStatus.get(thisItemPath);
+                returnList.push(new JobItem(dirent.name, thisJobStatus, thisItemPath));
+            }
+        });
+    }
+
+    private getCurrentJobNameToStatus(): Map<string, JobStatus> {
         const qstatOutput = child_process.spawnSync('qstat', {
             cwd: this.workspaceRoot,
             shell: '/bin/bash',
@@ -375,10 +355,23 @@ export class JobProvider implements vscode.TreeDataProvider<JobItem> {
     }
 }
 
+export class JobFolderItem extends vscode.TreeItem {
+    constructor(
+        public readonly label: string,
+        // path starting with workspaceRoot
+        public readonly itemPath: string
+    ) {
+        super(label, vscode.TreeItemCollapsibleState.Collapsed);
+        this.iconPath = new vscode.ThemeIcon('folder');
+    }
+}
+
 export class JobItem extends vscode.TreeItem {
     constructor(
         public readonly label: string, 
-        public readonly jobStatus: JobStatus | undefined
+        public readonly jobStatus: JobStatus | undefined,
+        // path starting with workspaceRoot
+        public readonly itemPath: string
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'jobItem';
