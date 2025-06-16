@@ -210,6 +210,10 @@
             "type": "string",
             "default": "scripts"
           },
+          "eh.jobs.resultFolderRelativePath": {
+            "type": "string",
+            "default": "results"
+          },
           "eh.submitOptions.submitOptionNamesAndContents": {
             "type": "array",
             "default": [

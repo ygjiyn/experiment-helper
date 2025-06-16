@@ -235,7 +235,14 @@ function submitOneJob(
         submitOption, 
         `-o ${scriptOutPath}`,
         `-e ${scriptErrorPath}`,
-        jobItem.itemPath
+        jobItem.itemPath,
+        // if the script needs arguments
+        // we may implement a "submit with arguments" callback
+        // get the arguments from the user and put it here
+        // user could pass pre-defined arguments (like submit options)
+        // or type them in an input box
+        // we do no plan to implement this currently
+        jobItem.itemResultPath
     ], {
         cwd: workspaceRoot,
         shell: '/bin/bash',
@@ -291,13 +298,29 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         const scriptFolderPath = path.join(
             this.workspaceRoot, scriptFolderRelativePath
         );
+        const resultFolderRelativePath = vscode.workspace.getConfiguration()
+            .get('eh.jobs.resultFolderRelativePath') as string;
+        const resultFolderPath = path.join(
+            this.workspaceRoot, resultFolderRelativePath
+        );
+
         const jobNameToStatus = this.getCurrentJobNameToStatus();
 
         const returnList: (JobFolderItem | JobItem)[] = [];
         if (!element) {
-            this.readAndHanderCurrentPath(scriptFolderPath, jobNameToStatus, returnList);
+            this.readAndHanderCurrentPath(
+                scriptFolderPath, 
+                jobNameToStatus, 
+                returnList,
+                resultFolderPath
+            );
         } else if (element instanceof JobFolderItem) {
-            this.readAndHanderCurrentPath(element.itemPath, jobNameToStatus, returnList);
+            this.readAndHanderCurrentPath(
+                element.itemPath, 
+                jobNameToStatus, 
+                returnList,
+                element.itemResultPath
+            );
         }
         return Promise.resolve(returnList);
     }
@@ -305,18 +328,40 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
     private readAndHanderCurrentPath(
         currentPath: string, 
         jobNameToStatus: Map<string, JobStatus>,
-        returnList: (JobFolderItem | JobItem)[]
+        returnList: (JobFolderItem | JobItem)[],
+        // passed to the script when submitting
+        currentResultPath: string
     ) {
         fs.readdirSync(currentPath, { withFileTypes: true }).forEach((dirent) => {
             const thisItemPath = path.join(currentPath, dirent.name);
             if (dirent.isDirectory()) {
-                returnList.push(new JobFolderItem(dirent.name, thisItemPath));
+                returnList.push(new JobFolderItem(
+                    dirent.name, 
+                    thisItemPath,
+                    path.join(currentResultPath, dirent.name)
+                ));
             } else if (dirent.name.endsWith('.sh')) {
                 // TODO 
                 // currently we only handle jobs submitted using this extension
                 // i.e., those whose job names are the absolute paths of scripts
                 const thisJobStatus = jobNameToStatus.get(thisItemPath);
-                returnList.push(new JobItem(dirent.name, thisJobStatus, thisItemPath));
+                returnList.push(new JobItem(
+                    dirent.name, 
+                    thisJobStatus, 
+                    thisItemPath,
+                    // remove '.sh', make it a folder in the results folder
+                    // NOTE
+                    // the user should make sure the script name (without '.sh')
+                    // should not be the same with any existing folder
+                    // this extension does not validate anything related to "results"
+                    // users should handle the "results" folder by themselves
+                    // e.g., creating sub-folders in the "results" folder,
+                    // whether overwrite or keep files in an existing folder, etc.
+                    // the currentResultPath is provided just for the convenience,
+                    // and users no longer need to write the result path 
+                    // of the similar pattern in each script manually
+                    path.join(currentResultPath, dirent.name.slice(0, -'.sh'.length))
+                ));
             }
         });
     }
@@ -359,7 +404,8 @@ export class JobFolderItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         // path starting with workspaceRoot
-        public readonly itemPath: string
+        public readonly itemPath: string,
+        public readonly itemResultPath: string
     ) {
         super(label, vscode.TreeItemCollapsibleState.Collapsed);
         this.iconPath = new vscode.ThemeIcon('folder');
@@ -371,7 +417,8 @@ export class JobItem extends vscode.TreeItem {
         public readonly label: string, 
         public readonly jobStatus: JobStatus | undefined,
         // path starting with workspaceRoot
-        public readonly itemPath: string
+        public readonly itemPath: string,
+        public readonly itemResultPath: string
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'jobItem';
