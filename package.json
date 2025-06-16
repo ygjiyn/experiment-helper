@@ -64,19 +64,19 @@
         "icon": "$(files)"
       },
       {
-        "command": "eh.jobSubmitOptions.addSubmitOption",
+        "command": "eh.submitOptions.addSubmitOption",
         "title": "Add Submit Option", 
         "category": "Experiment Helper",
         "icon": "$(add)"
       },
       {
-        "command": "eh.jobSubmitOptions.deleteSubmitOption",
+        "command": "eh.submitOptions.deleteSubmitOption",
         "title": "Delete Submit Option",
         "category": "Experiment Helper",
         "icon": "$(close)"
       },
       {
-        "command": "eh.jobSubmitOptions.refresh",
+        "command": "eh.submitOptions.refresh",
         "title": "Refresh \"Job Submit Options\"",
         "category": "Experiment Helper",
         "icon": "$(refresh)"
@@ -108,8 +108,8 @@
           "icon": "$(file)"
         },
         {
-          "id": "eh.jobSubmitOptions",
-          "name": "Job Submit Options",
+          "id": "eh.submitOptions",
+          "name": "Submit Options",
           "icon": "$(file)"
         },
         {
@@ -149,13 +149,13 @@
           "group": "navigation@0"
         },
         {
-          "command": "eh.jobSubmitOptions.addSubmitOption",
-          "when": "view == eh.jobSubmitOptions",
+          "command": "eh.submitOptions.addSubmitOption",
+          "when": "view == eh.submitOptions",
           "group": "navigation@0"
         },
         {
-          "command": "eh.jobSubmitOptions.refresh",
-          "when": "view == eh.jobSubmitOptions",
+          "command": "eh.submitOptions.refresh",
+          "when": "view == eh.submitOptions",
           "group": "navigation@1"
         },
         {
@@ -191,8 +191,8 @@
           "group": "inline@1"
         },
         {
-          "command": "eh.jobSubmitOptions.deleteSubmitOption",
-          "when": "viewItem == jobSubmitOptionItem",
+          "command": "eh.submitOptions.deleteSubmitOption",
+          "when": "viewItem == submitOptionItem",
           "group": "inline"
         },
         {
@@ -210,7 +210,7 @@
             "type": "string",
             "default": "scripts"
           },
-          "eh.jobSubmitOptions.submitOptionNamesAndContents": {
+          "eh.submitOptions.submitOptionNamesAndContents": {
             "type": "array",
             "default": [
               "h100:-S /bin/bash -cwd -l h100=1,s_vmem=100G -pe def_slot 10",

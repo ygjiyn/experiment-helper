@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export const refreshCallback = (provider: PythonVenvProvider) => {
-    provider.refresh();
-}
 
 export const activateCallback = (item?: PythonVenvItem) => {
     if (item) {

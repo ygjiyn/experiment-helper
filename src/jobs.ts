@@ -297,7 +297,7 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         if (!element) {
             this.readAndHanderCurrentPath(scriptFolderPath, jobNameToStatus, returnList);
         } else if (element instanceof JobFolderItem) {
-            this.readAndHanderCurrentPath(element.itemPath, jobNameToStatus, returnList)
+            this.readAndHanderCurrentPath(element.itemPath, jobNameToStatus, returnList);
         }
         return Promise.resolve(returnList);
     }

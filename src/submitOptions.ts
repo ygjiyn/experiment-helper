@@ -2,18 +2,16 @@ import * as vscode from 'vscode';
 
 
 export const setCurrentSubmitOptionCallback = (
-    jobSubmitOptionProvider: JobSubmitOptionProvider,
-    submitOptionItem?: JobSubmitOptionItem
+    submitOptionProvider: SubmitOptionProvider,
+    submitOptionItem?: SubmitOptionItem
 ) => {
     if (!submitOptionItem) {
         return;
     }
-    jobSubmitOptionProvider.setCurrentSubmitOption(submitOptionItem);
+    submitOptionProvider.setCurrentSubmitOption(submitOptionItem);
 }
 
-export const addSubmitOptionCallback = async (
-    jobSubmitOptionProvider: JobSubmitOptionProvider
-) => {
+export const addSubmitOptionCallback = async () => {
     const newSubmitOptionString = await vscode.window.showInputBox({
         title: 'Add new submit option',
         value: (
@@ -27,7 +25,7 @@ export const addSubmitOptionCallback = async (
         validateInput: (inputString) => {
             const name = inputString.split(':')[0];
             const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-                .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+                .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
             const currentNames = submitOptionNamesAndContents
                 .map(submitOptionString => submitOptionString.split(':')[0]);
             return currentNames.includes(name) ? `Name ${name} already exists.` : '';
@@ -37,46 +35,45 @@ export const addSubmitOptionCallback = async (
         return;
     }
     const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-        .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+        .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
     submitOptionNamesAndContents.push(newSubmitOptionString);
     // note that the update method returns Thenable
     // await until the update finished
     await vscode.workspace.getConfiguration().update(
-        'eh.jobSubmitOptions.submitOptionNamesAndContents',
+        'eh.submitOptions.submitOptionNamesAndContents',
         submitOptionNamesAndContents
     );
-    jobSubmitOptionProvider.refresh();
 }
 
 export const deleteSubmitOptionCallback = async (
-    jobSubmitOptionProvider: JobSubmitOptionProvider,
-    itemToDelete?: JobSubmitOptionItem
+    submitOptionProvider: SubmitOptionProvider,
+    submitOptionItem?: SubmitOptionItem
 ) => {
-    if (!itemToDelete) {
+    if (!submitOptionItem) {
         return;
     }
     const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-        .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+        .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
     await vscode.workspace.getConfiguration().update(
-        'eh.jobSubmitOptions.submitOptionNamesAndContents',
+        'eh.submitOptions.submitOptionNamesAndContents',
         submitOptionNamesAndContents
-            .filter(item => item.split(':')[0] !== itemToDelete.name)
+            .filter(item => item.split(':')[0] !== submitOptionItem.name)
     );
-    if (itemToDelete.name === jobSubmitOptionProvider.getCurrentSubmitOption()?.name) {
-        jobSubmitOptionProvider.setCurrentSubmitOption(undefined);
+    if (submitOptionItem.name === submitOptionProvider.getCurrentSubmitOption()?.name) {
+        submitOptionProvider.setCurrentSubmitOption(undefined);
     }
-    jobSubmitOptionProvider.refresh();
+    submitOptionProvider.refresh();
 }
 
-export class JobSubmitOptionProvider 
-    implements vscode.TreeDataProvider<JobSubmitOptionItem> {
+export class SubmitOptionProvider 
+    implements vscode.TreeDataProvider<SubmitOptionItem> {
     
     private readonly onDidChangeTreeDataEventEmitter = new vscode.EventEmitter
-        <void | JobSubmitOptionItem | JobSubmitOptionItem[] | null | undefined>();
+        <void | SubmitOptionItem | SubmitOptionItem[] | null | undefined>();
     onDidChangeTreeData = this.onDidChangeTreeDataEventEmitter.event;
 
     private currentSubmitOptionName: string | undefined = undefined;
-    private jobSubmitOptionNameToItem: Map<string, JobSubmitOptionItem> = new Map();
+    private submitOptionNameToItem: Map<string, SubmitOptionItem> = new Map();
     
     constructor(public readonly workspaceRoot: string | undefined) {}
     
@@ -84,14 +81,14 @@ export class JobSubmitOptionProvider
         this.onDidChangeTreeDataEventEmitter.fire();
     }
 
-    getTreeItem(element: JobSubmitOptionItem): 
+    getTreeItem(element: SubmitOptionItem): 
         vscode.TreeItem | Thenable<vscode.TreeItem> {
         
         return element;
     }
 
-    getChildren(element?: JobSubmitOptionItem | undefined): 
-        vscode.ProviderResult<JobSubmitOptionItem[]> {
+    getChildren(element?: SubmitOptionItem | undefined): 
+        vscode.ProviderResult<SubmitOptionItem[]> {
         
         if (!this.workspaceRoot) {
             vscode.window.showInformationMessage(
@@ -101,27 +98,27 @@ export class JobSubmitOptionProvider
         }
 
         if (!element) {
-            this.jobSubmitOptionNameToItem = new Map();
+            this.submitOptionNameToItem = new Map();
             const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-                .get('eh.jobSubmitOptions.submitOptionNamesAndContents') as string[];
+                .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
             submitOptionNamesAndContents.forEach((nameAndContent) => {
                 const [name, content] = nameAndContent.split(':');
-                this.jobSubmitOptionNameToItem.set(
-                    name, new JobSubmitOptionItem(
+                this.submitOptionNameToItem.set(
+                    name, new SubmitOptionItem(
                         name, content, name === this.currentSubmitOptionName
                     )
                 );
             });
-            return Promise.resolve(Array.from(this.jobSubmitOptionNameToItem.values()));
+            return Promise.resolve(Array.from(this.submitOptionNameToItem.values()));
         }
     }
 
     getCurrentSubmitOption() {
         return this.currentSubmitOptionName ? 
-            this.jobSubmitOptionNameToItem.get(this.currentSubmitOptionName) : undefined;
+            this.submitOptionNameToItem.get(this.currentSubmitOptionName) : undefined;
     }
 
-    setCurrentSubmitOption(submitOptionItem: JobSubmitOptionItem | undefined) {
+    setCurrentSubmitOption(submitOptionItem: SubmitOptionItem | undefined) {
         this.currentSubmitOptionName = 
             submitOptionItem ? submitOptionItem.name : undefined;
         this.refresh();
@@ -129,7 +126,7 @@ export class JobSubmitOptionProvider
 }
 
 
-export class JobSubmitOptionItem extends vscode.TreeItem {
+export class SubmitOptionItem extends vscode.TreeItem {
     constructor(
         public readonly name: string, 
         public readonly content: string,
@@ -139,13 +136,13 @@ export class JobSubmitOptionItem extends vscode.TreeItem {
         this.label = name;
         this.description = content;
         this.tooltip = content;
-        this.contextValue = 'jobSubmitOptionItem';
+        this.contextValue = 'submitOptionItem';
         this.iconPath = isCurrent ?
             new vscode.ThemeIcon('circle-filled') :
             new vscode.ThemeIcon('circle-outline');
         // no need to register this command in package.json
         this.command = {
-            command: 'eh.jobSubmitOptions.setCurrentSubmitOption',
+            command: 'eh.submitOptions.setCurrentSubmitOption',
             title: 'Set Current Submit Option',
             arguments: [this]
         }

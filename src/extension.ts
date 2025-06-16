@@ -1,17 +1,12 @@
 import * as vscode from 'vscode';
 import * as pythonVenvs from './pythonVenvs';
 import * as jobs from './jobs';
-import * as jobSubmitOptions from './jobSubmitOptions';
+import * as submitOptions from './submitOptions';
 
 
 export function activate(context: vscode.ExtensionContext) {
 	const workspaceRoot = vscode.workspace.workspaceFolders ? 
     	vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-
-	const pythonVenvProvider = new pythonVenvs.PythonVenvProvider(workspaceRoot);
-	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'eh.pythonVenvs', pythonVenvProvider
-	));
 
 	const jobProvider = new jobs.JobProvider(workspaceRoot);
 	const jobTreeView = vscode.window.createTreeView('eh.jobs', {
@@ -20,31 +15,20 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(jobTreeView);
 
-	const jobSubmitOptionProvider = new 
-		jobSubmitOptions.JobSubmitOptionProvider(workspaceRoot);
+	const submitOptionProvider = new 
+		submitOptions.SubmitOptionProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'eh.jobSubmitOptions', jobSubmitOptionProvider
+		'eh.submitOptions', submitOptionProvider
 	));
 
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.pythonVenvs.refresh', () => {
-			pythonVenvs.refreshCallback(pythonVenvProvider);
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.pythonVenvs.activate', (item?: pythonVenvs.PythonVenvItem) => {
-			pythonVenvs.activateCallback(item);
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.pythonVenvs.deactivate', pythonVenvs.deactivateCallback
+	const pythonVenvProvider = new pythonVenvs.PythonVenvProvider(workspaceRoot);
+	context.subscriptions.push(vscode.window.registerTreeDataProvider(
+		'eh.pythonVenvs', pythonVenvProvider
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.submit', (item?: jobs.JobItem) => {
-			const currentSubmitOption = jobSubmitOptionProvider.getCurrentSubmitOption();
+			const currentSubmitOption = submitOptionProvider.getCurrentSubmitOption();
 			jobs.submitCallback(
 				workspaceRoot,
 				currentSubmitOption?.content,
@@ -56,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.submitMultiple', () => {
-			const currentSubmitOption = jobSubmitOptionProvider.getCurrentSubmitOption();
+			const currentSubmitOption = submitOptionProvider.getCurrentSubmitOption();
 			jobs.submitMultipleCallback(
 				workspaceRoot, 
 				currentSubmitOption?.content,
@@ -105,40 +89,59 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.createJobScriptFromCurrentJobScript', () => {
-			jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
+		'eh.jobs.createJobScriptFromCurrentJobScript', async () => {
+			await jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
 			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobSubmitOptions.setCurrentSubmitOption', (
-			item?: jobSubmitOptions.JobSubmitOptionItem
+		'eh.submitOptions.setCurrentSubmitOption', (
+			item?: submitOptions.SubmitOptionItem
 		) => {
-			jobSubmitOptions.setCurrentSubmitOptionCallback(jobSubmitOptionProvider, item);
+			submitOptions.setCurrentSubmitOptionCallback(submitOptionProvider, item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobSubmitOptions.addSubmitOption', () => {
-			jobSubmitOptions.addSubmitOptionCallback(jobSubmitOptionProvider);
+		'eh.submitOptions.addSubmitOption', async () => {
+			// addSubmitOptionCallback is async
+			// be sure to await it here
+			await submitOptions.addSubmitOptionCallback();
+			submitOptionProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobSubmitOptions.deleteSubmitOption', (
-			itemToDelete?: jobSubmitOptions.JobSubmitOptionItem
+		'eh.submitOptions.deleteSubmitOption', (
+			itemToDelete?: submitOptions.SubmitOptionItem
 		) => {
-			jobSubmitOptions.deleteSubmitOptionCallback(
-				jobSubmitOptionProvider, itemToDelete
+			submitOptions.deleteSubmitOptionCallback(
+				submitOptionProvider, itemToDelete
 			);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobSubmitOptions.refresh', () => {
-			jobSubmitOptionProvider.refresh();
+		'eh.submitOptions.refresh', () => {
+			submitOptionProvider.refresh();
 		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.pythonVenvs.refresh', () => {
+			pythonVenvProvider.refresh();
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.pythonVenvs.activate', (item?: pythonVenvs.PythonVenvItem) => {
+			pythonVenvs.activateCallback(item);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.pythonVenvs.deactivate', pythonVenvs.deactivateCallback
 	));
 }
 
