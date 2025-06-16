@@ -231,6 +231,32 @@ function submitOneJob(
     const scriptOutPath = scriptBasePath + '_o.txt';
     const scriptErrorPath = scriptBasePath + '_e.txt';
 
+    const currentTime = new Date();
+    const currentTimeString = [
+        currentTime.getFullYear(),
+        currentTime.getMonth(),
+        currentTime.getDate(),
+        currentTime.getHours(),
+        currentTime.getMinutes(),
+        currentTime.getSeconds(),
+        currentTime.getMilliseconds()
+    ].join('_');
+
+    const scriptOutBackupPath = 
+        scriptBasePath + `_backup_at_${currentTimeString}_o.txt`;
+    const scriptErrorBackupPath = 
+        scriptBasePath + `_backup_at_${currentTimeString}_e.txt`;
+
+    try {
+        fs.accessSync(scriptOutPath);
+        fs.renameSync(scriptOutPath, scriptOutBackupPath);
+    } catch (err) {}
+
+    try {
+        fs.accessSync(scriptErrorPath);
+        fs.renameSync(scriptErrorPath, scriptErrorBackupPath);
+    } catch (err) {}
+
     const outputLines = child_process.spawnSync('qsub', [
         submitOption, 
         `-o ${scriptOutPath}`,
