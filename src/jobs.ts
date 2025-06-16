@@ -136,7 +136,7 @@ export const showJobOutputOrErrorCallback = async (
         fs.accessSync(scriptLogPath);
     } catch (err) {
         vscode.window.showInformationMessage(
-            `Log file ${scriptLogPath} does not exist.`
+            `Log file ${path.basename(scriptLogPath)} does not exist.`
         );
         return;
     }
@@ -163,7 +163,7 @@ export const showJobScriptCallback = async (
         fs.accessSync(item.itemPath);
     } catch (err) {
         vscode.window.showInformationMessage(
-            `File ${item.itemPath} does not exist.`
+            `File ${item.label} does not exist.`
         );
         return;
     }
