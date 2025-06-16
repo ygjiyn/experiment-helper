@@ -30,11 +30,13 @@ export const submitCallback = (
         return;
     }
     
-    submitOneJob(
+    const infoMessage = submitOneJob(
         workspaceRoot, 
         submitOption,
         item
     );
+
+    vscode.window.showInformationMessage(infoMessage);
 }
 
 export const submitMultipleCallback = (
@@ -55,15 +57,20 @@ export const submitMultipleCallback = (
         return;
     }
 
+    const infoMessageList: string[] = [];
+
     itemSelection.forEach((item) => {
         if (item instanceof JobItem) {
-            submitOneJob(
+            const infoMessage = submitOneJob(
                 workspaceRoot, 
                 submitOption,
                 item
             );
+            infoMessageList.push(infoMessage);
         }
     });
+
+    vscode.window.showInformationMessage(infoMessageList.join(' '));
 }
 
 export const deleteCallback = (
@@ -72,7 +79,7 @@ export const deleteCallback = (
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
@@ -80,7 +87,8 @@ export const deleteCallback = (
         return;
     }
 
-    deleteOneJob(workspaceRoot, item);
+    const infoMessage = deleteOneJob(workspaceRoot, item);
+    vscode.window.showInformationMessage(infoMessage);
 }
 
 export const deleteMultipleCallback = (
@@ -94,11 +102,16 @@ export const deleteMultipleCallback = (
         return;
     }
 
+    const infoMessageList: string[] = [];
+
     itemSelection.forEach((item) => {
         if (item instanceof JobItem) {
-            deleteOneJob(workspaceRoot, item);
+            const infoMessage = deleteOneJob(workspaceRoot, item);
+            infoMessageList.push(infoMessage);
         }
     });
+
+    vscode.window.showInformationMessage(infoMessageList.join(' '));
 }
 
 export const showJobOutputOrErrorCallback = async (
@@ -108,7 +121,7 @@ export const showJobOutputOrErrorCallback = async (
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
@@ -138,7 +151,7 @@ export const showJobScriptCallback = async (
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(
-            'Current workspace is empty. Open a workspace first.'
+            'Open a workspace first.'
         );
         return;
     }
@@ -206,6 +219,8 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
         return;
     }
 
+    const infoMessageList: string[] = [];
+
     valuesToUse.forEach((value) => {
         const newJobScriptPath = 
             `${currentJobScriptPathBase}_${newJobScriptsSuffix}_${value}.sh`;
@@ -214,8 +229,10 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
         const modifiedNewScript = newScript.slice(0, startOffset) + 
             value + newScript.slice(endOffset);
         fs.writeFileSync(newJobScriptPath, modifiedNewScript);
-        vscode.window.showInformationMessage(`Created: ${newJobScriptPath}`);
+        infoMessageList.push(`Created: ${newJobScriptPath}`);
     });
+
+    vscode.window.showInformationMessage(infoMessageList.join(' '));
 }
 
 function submitOneJob(
@@ -224,8 +241,7 @@ function submitOneJob(
     jobItem: JobItem
 ) {
     if (jobItem.jobStatus) {
-        vscode.window.showInformationMessage(`Job ${jobItem.label} is in progress.`);
-        return;
+        return `Job ${jobItem.label} is in progress.`;
     }
     const scriptBasePath = jobItem.itemPath.slice(0, -'.sh'.length);
     const scriptOutPath = scriptBasePath + '_o.txt';
@@ -234,8 +250,8 @@ function submitOneJob(
     const currentTime = new Date();
     const currentTimeString = [
         currentTime.getFullYear(),
-        currentTime.getMonth(),
-        currentTime.getDate(),
+        currentTime.getMonth() + 1, // 0 - 11
+        currentTime.getDate(), // 1 - 31
         currentTime.getHours(),
         currentTime.getMinutes(),
         currentTime.getSeconds(),
@@ -274,25 +290,21 @@ function submitOneJob(
         shell: '/bin/bash',
     }).stdout.toString().trim().split('\n');
     const jobId = outputLines.at(-1)?.split(' ')[2];
-    if (!jobId) {
-        vscode.window.showWarningMessage('Could not obtain job id.');
-    }
-    vscode.window.showInformationMessage(
-        `Job ${jobItem.label} is submitted with id ${jobId}.`
-    );
+
+    return jobId ?
+        `Job ${jobItem.label} is submitted with id ${jobId}.` : 
+        `Could not obtain the id of job ${jobItem.label}.`
 }
 
 function deleteOneJob(workspaceRoot: string, jobItem: JobItem) {
     if (!jobItem.jobStatus) {
-        vscode.window.showWarningMessage(`Job ${jobItem.label} is not queued.`);
+        return `Job ${jobItem.label} is not queued.`;
     } else {
         const qdelReturn = child_process.spawnSync('qdel', [jobItem.jobStatus.id], {
             cwd: workspaceRoot,
             shell: '/bin/bash',
         });
-        vscode.window.showInformationMessage(
-            qdelReturn.stdout.toString().trim() + qdelReturn.stderr.toString().trim()
-        );
+        return qdelReturn.stdout.toString().trim() + qdelReturn.stderr.toString().trim();
     }
 }
 
