@@ -88,12 +88,6 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "eh.pythonVenvs.activate",
-        "title": "Activate Python Venv",
-        "category": "Experiment Helper",
-        "icon": "$(check)"
-      },
-      {
         "command": "eh.pythonVenvs.deactivate",
         "title": "Deactivate Python Venv",
         "category": "Experiment Helper",
@@ -116,12 +110,6 @@
           "id": "eh.pythonVenvs",
           "name": "Python Venvs",
           "icon": "$(file)",
-          "visibility": "collapsed"
-        },
-        {
-          "id": "eh.textTransforms",
-          "name": "Text Transforms",
-          "icon": "$(file)", 
           "visibility": "collapsed"
         }
       ]
@@ -193,11 +181,6 @@
         {
           "command": "eh.submitOptions.deleteSubmitOption",
           "when": "viewItem == submitOptionItem",
-          "group": "inline"
-        },
-        {
-          "command": "eh.pythonVenvs.activate",
-          "when": "viewItem == pythonVenvItem",
           "group": "inline"
         }
       ]

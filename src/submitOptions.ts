@@ -92,7 +92,7 @@ export class SubmitOptionProvider
         
         if (!this.workspaceRoot) {
             vscode.window.showInformationMessage(
-                'Current workspace is empty. Open a workspace first.'
+                'Open a workspace first.'
             );
             return Promise.resolve([]);
         }

@@ -5,7 +5,7 @@ import * as path from 'path';
 
 export const activateCallback = (item?: PythonVenvItem) => {
     if (item) {
-        const activatePath = path.join(item.label, 'bin', 'activate');
+        const activatePath = path.join(item.itemPath, 'bin', 'activate');
         vscode.window.activeTerminal?.sendText(`. ${activatePath}`);
     }
 }
@@ -33,7 +33,7 @@ export class PythonVenvProvider implements vscode.TreeDataProvider<PythonVenvIte
     getChildren(element?: PythonVenvItem | undefined): vscode.ProviderResult<PythonVenvItem[]> {
         if (!this.workspaceRoot) {
             vscode.window.showInformationMessage(
-                'Current workspace is empty. Open a workspace first.'
+                'Open a workspace first.'
 			);
 			return Promise.resolve([]);
         }
@@ -44,7 +44,10 @@ export class PythonVenvProvider implements vscode.TreeDataProvider<PythonVenvIte
             const pythonVenvItemList: PythonVenvItem[] = [];
             workspaceFiles.forEach((fileName) => {
                 if (fileName.startsWith(pythonVenvPrefix)) {
-                    pythonVenvItemList.push(new PythonVenvItem(fileName));
+                    pythonVenvItemList.push(new PythonVenvItem(
+                        fileName,
+                        path.join(this.workspaceRoot as string, fileName)
+                    ));
                 }
             })
             return Promise.resolve(pythonVenvItemList);
@@ -53,8 +56,17 @@ export class PythonVenvProvider implements vscode.TreeDataProvider<PythonVenvIte
 }
 
 export class PythonVenvItem extends vscode.TreeItem {
-    constructor(public readonly label: string) {
+    constructor(
+        public readonly label: string,
+        public readonly itemPath: string
+    ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'pythonVenvItem';
+        this.iconPath = new vscode.ThemeIcon('circle-outline');
+        this.command = {
+            command: 'eh.pythonVenvs.activate',
+            title: 'Activate Python Venv',
+            arguments: [this]
+        }
     }
 }
