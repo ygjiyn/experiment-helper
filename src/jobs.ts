@@ -9,6 +9,11 @@ interface JobStatus {
     state: string
 }
 
+interface CommandStatus {
+    isSuccessful: boolean,
+    message: string
+}
+
 export const submitCallback = (
     workspaceRoot: string | undefined,
     submitOption: string | undefined,
@@ -30,13 +35,17 @@ export const submitCallback = (
         return;
     }
     
-    const infoMessage = submitOneJob(
+    const commandStatus = submitOneJob(
         workspaceRoot, 
         submitOption,
         item
     );
 
-    vscode.window.showInformationMessage(infoMessage);
+    if (commandStatus.isSuccessful) {
+        vscode.window.showInformationMessage(`Job ${item.label} is submitted.`);
+    } else {
+        vscode.window.showInformationMessage(commandStatus.message);
+    }
 }
 
 export const submitMultipleCallback = (
@@ -57,20 +66,36 @@ export const submitMultipleCallback = (
         return;
     }
 
-    const infoMessageList: string[] = [];
+    let successNumber = 0;
+    let failNumber = 0;
+    let failMessageList: string[] = [];
 
     itemSelection.forEach((item) => {
         if (item instanceof JobItem) {
-            const infoMessage = submitOneJob(
+            const commandStatus = submitOneJob(
                 workspaceRoot, 
                 submitOption,
                 item
             );
-            infoMessageList.push(infoMessage);
+            if (commandStatus.isSuccessful) {
+                successNumber += 1;
+            } else {
+                failNumber += 1;
+                failMessageList.push(item.label + ': ' + commandStatus.message);
+            }
         }
     });
 
-    vscode.window.showInformationMessage(infoMessageList.join(' '));
+    if (failNumber === 0) {
+        vscode.window.showInformationMessage(
+            `Successfully submitted ${successNumber} jobs.`
+        );
+    } else {
+        vscode.window.showInformationMessage(
+            `Success: ${successNumber}, fail: ${failNumber}. ` + 
+            `Details: ${failMessageList.join(' ')}`
+        );
+    }
 }
 
 export const deleteCallback = (
@@ -87,8 +112,12 @@ export const deleteCallback = (
         return;
     }
 
-    const infoMessage = deleteOneJob(workspaceRoot, item);
-    vscode.window.showInformationMessage(infoMessage);
+    const commandStatus = deleteOneJob(workspaceRoot, item);
+    if (commandStatus.isSuccessful) {
+        vscode.window.showInformationMessage(`Job ${item.label} is deleted.`);
+    } else {
+        vscode.window.showInformationMessage(commandStatus.message);
+    }
 }
 
 export const deleteMultipleCallback = (
@@ -102,16 +131,32 @@ export const deleteMultipleCallback = (
         return;
     }
 
-    const infoMessageList: string[] = [];
+    let successNumber = 0;
+    let failNumber = 0;
+    let failMessageList: string[] = [];
 
     itemSelection.forEach((item) => {
         if (item instanceof JobItem) {
-            const infoMessage = deleteOneJob(workspaceRoot, item);
-            infoMessageList.push(infoMessage);
+            const commandStatus = deleteOneJob(workspaceRoot, item);
+            if (commandStatus.isSuccessful) {
+                successNumber += 1;
+            } else {
+                failNumber += 1;
+                failMessageList.push(item.label + ': ' + commandStatus.message);
+            }
         }
     });
 
-    vscode.window.showInformationMessage(infoMessageList.join(' '));
+    if (failNumber === 0) {
+        vscode.window.showInformationMessage(
+            `Successfully deleted ${successNumber} jobs.`
+        );
+    } else {
+        vscode.window.showInformationMessage(
+            `Success: ${successNumber}, fail: ${failNumber}. ` + 
+            `Details: ${failMessageList.join(' ')}`
+        );
+    }
 }
 
 export const showJobOutputOrErrorCallback = async (
@@ -219,7 +264,7 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
         return;
     }
 
-    const infoMessageList: string[] = [];
+    let successNumber = 0;
 
     valuesToUse.forEach((value) => {
         const newJobScriptPath = 
@@ -229,19 +274,24 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
         const modifiedNewScript = newScript.slice(0, startOffset) + 
             value + newScript.slice(endOffset);
         fs.writeFileSync(newJobScriptPath, modifiedNewScript);
-        infoMessageList.push(`Created: ${newJobScriptPath}`);
+        successNumber += 1;
     });
 
-    vscode.window.showInformationMessage(infoMessageList.join(' '));
+    vscode.window.showInformationMessage(
+        `Successfully created ${successNumber} scripts.`
+    );
 }
 
 function submitOneJob(
     workspaceRoot: string,
     submitOption: string,
     jobItem: JobItem
-) {
+): CommandStatus {
     if (jobItem.jobStatus) {
-        return `Job ${jobItem.label} is in progress.`;
+        return {
+            isSuccessful: false,
+            message: `Job ${jobItem.label} is in progress.`
+        }
     }
     const scriptBasePath = jobItem.itemPath.slice(0, -'.sh'.length);
     const scriptOutPath = scriptBasePath + '_o.txt';
@@ -273,7 +323,7 @@ function submitOneJob(
         fs.renameSync(scriptErrorPath, scriptErrorBackupPath);
     } catch (err) {}
 
-    const outputLines = child_process.spawnSync('qsub', [
+    const commandReturns = child_process.spawnSync('qsub', [
         submitOption, 
         `-o ${scriptOutPath}`,
         `-e ${scriptErrorPath}`,
@@ -288,24 +338,39 @@ function submitOneJob(
     ], {
         cwd: workspaceRoot,
         shell: '/bin/bash',
-    }).stdout.toString().trim().split('\n');
-    const jobId = outputLines.at(-1)?.split(' ')[2];
+    });
+    // const jobId = commandReturns.stdout.toString().trim().split('\n')
+    //     .at(-1)?.split(' ')[2];
 
-    return jobId ?
-        `Job ${jobItem.label} is submitted with id ${jobId}.` : 
-        `Could not obtain the id of job ${jobItem.label}.`
+    const isSuccessful = commandReturns.status === 0;
+
+    return {
+        isSuccessful: isSuccessful,
+        message: isSuccessful ?
+            commandReturns.stdout.toString() : commandReturns.stderr.toString()
+    };
 }
 
-function deleteOneJob(workspaceRoot: string, jobItem: JobItem) {
+function deleteOneJob(workspaceRoot: string, jobItem: JobItem): CommandStatus {
     if (!jobItem.jobStatus) {
-        return `Job ${jobItem.label} is not queued.`;
-    } else {
-        const qdelReturn = child_process.spawnSync('qdel', [jobItem.jobStatus.id], {
-            cwd: workspaceRoot,
-            shell: '/bin/bash',
-        });
-        return qdelReturn.stdout.toString().trim() + qdelReturn.stderr.toString().trim();
+        return {
+            isSuccessful: false,
+            message: `Job ${jobItem.label} is not queued.`
+        }
     }
+
+    const commandReturns = child_process.spawnSync('qdel', [jobItem.jobStatus.id], {
+        cwd: workspaceRoot,
+        shell: '/bin/bash',
+    });
+
+    const isSuccessful = commandReturns.status === 0;
+
+    return {
+        isSuccessful: isSuccessful,
+        message: isSuccessful ?
+            commandReturns.stdout.toString() : commandReturns.stderr.toString()
+    };
 }
 
 export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobItem> {
