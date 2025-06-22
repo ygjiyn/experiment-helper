@@ -57,15 +57,15 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.delete', (item?: jobs.JobItem) => {
-			jobs.deleteCallback(workspaceRoot, item);
+		'eh.jobs.delete', async (item?: jobs.JobItem) => {
+			await jobs.deleteCallback(workspaceRoot, item);
 			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.deleteMultiple', () => {
-			jobs.deleteMultipleCallback(workspaceRoot, jobTreeView.selection);
+		'eh.jobs.deleteMultiple', async () => {
+			await jobs.deleteMultipleCallback(workspaceRoot, jobTreeView.selection);
 			jobProvider.refresh();
 		}
 	));

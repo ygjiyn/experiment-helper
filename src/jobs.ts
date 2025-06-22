@@ -98,7 +98,7 @@ export const submitMultipleCallback = (
     }
 }
 
-export const deleteCallback = (
+export const deleteCallback = async (
     workspaceRoot: string | undefined,  
     item?: JobFolderItem | JobItem
 ) => {
@@ -112,6 +112,12 @@ export const deleteCallback = (
         return;
     }
 
+    const isCanceled = await waitConfirmDeleteJob(5);
+    if (isCanceled) {
+        vscode.window.showInformationMessage('Canceled.')
+        return;
+    }
+
     const commandStatus = deleteOneJob(workspaceRoot, item);
     if (commandStatus.isSuccessful) {
         vscode.window.showInformationMessage(`Job ${item.label} is deleted.`);
@@ -120,7 +126,7 @@ export const deleteCallback = (
     }
 }
 
-export const deleteMultipleCallback = (
+export const deleteMultipleCallback = async (
     workspaceRoot: string | undefined, 
     itemSelection: readonly (JobFolderItem | JobItem)[]
 ) => {
@@ -128,6 +134,12 @@ export const deleteMultipleCallback = (
         vscode.window.showInformationMessage(
             'Open a workspace first.'
         );
+        return;
+    }
+
+    const isCanceled = await waitConfirmDeleteJob(5);
+    if (isCanceled) {
+        vscode.window.showInformationMessage('Canceled.')
         return;
     }
 
@@ -371,6 +383,28 @@ function deleteOneJob(workspaceRoot: string, jobItem: JobItem): CommandStatus {
         message: isSuccessful ?
             commandReturns.stdout.toString() : commandReturns.stderr.toString()
     };
+}
+
+function waitConfirmDeleteJob(second: number): Thenable<boolean> {
+    return vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: 'Delete Job',
+        cancellable: true
+    }, async (progress, token) => {
+        const incrementPerStep = 100 / second;
+        for (let i = second; i > 0; --i) {
+            if (token.isCancellationRequested) {
+                break;
+            }
+            progress.report({ increment: incrementPerStep, message: `Start in ${i}s.` });
+            await new Promise<void>(resolve => {
+                setTimeout(() => {
+                    resolve();
+                }, 1000);
+            });
+        }
+        return Promise.resolve(token.isCancellationRequested);
+    })
 }
 
 export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobItem> {
