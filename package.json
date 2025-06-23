@@ -58,6 +58,12 @@
         "icon": "$(error)"
       },
       {
+        "command": "eh.jobs.closeAllScriptsAndLogs",
+        "title": "Close All Scripts and Logs",
+        "category": "Experiment Helper",
+        "icon": "$(close-all)"
+      },
+      {
         "command": "eh.jobs.createJobScriptFromCurrentJobScript",
         "title": "Create Job Script From Current Job Script",
         "category": "Experiment Helper",
@@ -119,22 +125,27 @@
         {
           "command": "eh.jobs.refresh",
           "when": "view == eh.jobs",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "eh.jobs.submitMultiple",
           "when": "view == eh.jobs",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "eh.jobs.deleteMultiple",
           "when": "view == eh.jobs",
-          "group": "navigation@1"
+          "group": "navigation@2"
+        },
+        {
+          "command": "eh.jobs.closeAllScriptsAndLogs",
+          "when": "view == eh.jobs",
+          "group": "navigation@0"
         },
         {
           "command": "eh.jobs.createJobScriptFromCurrentJobScript",
           "when": "view == eh.jobs",
-          "group": "navigation@0"
+          "group": "navigation@1"
         },
         {
           "command": "eh.submitOptions.addSubmitOption",

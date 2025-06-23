@@ -229,8 +229,38 @@ export const showJobScriptCallback = async (
     await vscode.window.showTextDocument(textDocument);
 }
 
+export const closeAllScriptsAndLogsCallback = async () => {
+    let scriptCount = 0;
+    let outputCount = 0;
+    let errorCount = 0;
+
+    const tabsToClose: vscode.Tab[] = [];
+    
+    vscode.window.tabGroups.all.forEach(tabGroup => {
+        tabGroup.tabs.forEach(tab => {
+            if (tab.label.endsWith('.sh')) {
+                tabsToClose.push(tab);
+                scriptCount += 1;
+            } else if (tab.label.endsWith('_o.txt')) {
+                tabsToClose.push(tab);
+                outputCount += 1;
+            } else if (tab.label.endsWith('_e.txt')) {
+                tabsToClose.push(tab);
+                errorCount += 1;
+            }
+        })
+    })
+
+    await vscode.window.tabGroups.close(tabsToClose, true);
+    
+    vscode.window.showInformationMessage(
+        `Closed tabs: ${scriptCount} script(s), ` +
+        `${outputCount} output log(s), ${errorCount} error log(s).`
+    );
+}
+
 export const createJobScriptFromCurrentJobScriptCallback = async (
-    workspaceRoot: string | undefined, 
+    workspaceRoot: string | undefined
 ) => {
     if (!workspaceRoot) {
         vscode.window.showInformationMessage(

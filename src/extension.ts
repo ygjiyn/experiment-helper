@@ -89,6 +89,10 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobs.closeAllScriptsAndLogs', jobs.closeAllScriptsAndLogsCallback
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.jobs.createJobScriptFromCurrentJobScript', async () => {
 			await jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
 			jobProvider.refresh();
