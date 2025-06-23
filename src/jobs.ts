@@ -544,7 +544,7 @@ export class JobFolderItem extends vscode.TreeItem {
         public readonly itemPath: string,
         public readonly itemResultPath: string
     ) {
-        super(label, vscode.TreeItemCollapsibleState.Collapsed);
+        super(label, vscode.TreeItemCollapsibleState.Expanded);
         this.iconPath = new vscode.ThemeIcon('folder');
     }
 }
