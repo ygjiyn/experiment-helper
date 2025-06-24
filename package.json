@@ -138,7 +138,7 @@
           "id": "eh.tabCleaner",
           "name": "Tab Cleaner",
           "icon": "$(file)",
-          "initialSize": 1
+          "initialSize": 2
         },
         {
           "id": "eh.pythonVenvs",
