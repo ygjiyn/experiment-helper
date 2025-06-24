@@ -168,6 +168,13 @@ export function activate(context: vscode.ExtensionContext) {
 			tabCleanerProvider.refresh();
 		}
 	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.tabCleaner.closeAllOpenedTabs', async () => {
+			await tabCleaner.closeAllOpenedTabsCallback();
+			tabCleanerProvider.refresh();
+		}
+	));
 }
 
 // This method is called when your extension is deactivated

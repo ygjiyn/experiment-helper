@@ -2,6 +2,17 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+
+export const closeAllOpenedTabsCallback = async () => {
+    const allOpenedTabs: vscode.Tab[] = [];
+    vscode.window.tabGroups.all.forEach(tabGroup => {
+        allOpenedTabs.push(...tabGroup.tabs);
+    });
+    const numberOfAllOpenedTabs = allOpenedTabs.length;
+    await vscode.window.tabGroups.close(allOpenedTabs, true);
+    vscode.window.showInformationMessage(`Closed ${numberOfAllOpenedTabs} tab(s).`);
+}
+
 export const closeThisItemOpenedTabsCallback = async (
     item?: FolderItem | FileItem
 ) => {

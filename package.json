@@ -110,6 +110,12 @@
         "title": "Close Opened Tabs of This Item",
         "category": "Experiment Helper",
         "icon": "$(close)"
+      },
+      {
+        "command": "eh.tabCleaner.closeAllOpenedTabs",
+        "title": "Close All Opened Tabs",
+        "category": "Experiment Helper",
+        "icon": "$(close-all)"
       }
     ],
     "views": {
@@ -131,12 +137,14 @@
         {
           "id": "eh.tabCleaner",
           "name": "Tab Cleaner",
-          "icon": "$(file)"
+          "icon": "$(file)",
+          "initialSize": 1
         },
         {
           "id": "eh.pythonVenvs",
           "name": "Python Venvs",
-          "icon": "$(file)"
+          "icon": "$(file)",
+          "initialSize": 1
         }
       ]
     },
@@ -190,7 +198,12 @@
         {
           "command": "eh.tabCleaner.refresh",
           "when": "view == eh.tabCleaner",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "eh.tabCleaner.closeAllOpenedTabs",
+          "when": "view == eh.tabCleaner",
+          "group": "navigation@0"
         }
       ],
       "view/item/context": [
