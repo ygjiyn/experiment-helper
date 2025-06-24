@@ -101,17 +101,21 @@
       }
     ],
     "views": {
-      "experiment-helper": [
+      "eh-job-manager": [
         {
           "id": "eh.jobs",
           "name": "Jobs",
-          "icon": "$(file)"
+          "icon": "$(file)",
+          "initialSize": 2
         },
         {
           "id": "eh.submitOptions",
           "name": "Submit Options",
-          "icon": "$(file)"
-        },
+          "icon": "$(file)",
+          "initialSize": 1
+        }
+      ],
+      "eh-tools": [
         {
           "id": "eh.pythonVenvs",
           "name": "Python Venvs",
@@ -229,9 +233,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "experiment-helper",
-          "title": "Experiment Helper",
+          "id": "eh-job-manager",
+          "title": "Experiment Helper: Job Manager",
           "icon": "$(check-all)"
+        },
+        {
+          "id": "eh-tools",
+          "title": "Experiment Helper: Tools",
+          "icon": "$(tools)"
         }
       ]
     }
