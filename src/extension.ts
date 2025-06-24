@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import * as pythonVenvs from './pythonVenvs';
 import * as jobs from './jobs';
 import * as submitOptions from './submitOptions';
+import * as pythonVenvs from './pythonVenvs';
+import * as tabCleaner from './tabCleaner';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -24,6 +25,11 @@ export function activate(context: vscode.ExtensionContext) {
 	const pythonVenvProvider = new pythonVenvs.PythonVenvProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
 		'eh.pythonVenvs', pythonVenvProvider
+	));
+
+	const tabCleanerProvider = new tabCleaner.TabCleanerProvider(workspaceRoot);
+	context.subscriptions.push(vscode.window.registerTreeDataProvider(
+		'eh.tabCleaner', tabCleanerProvider
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(

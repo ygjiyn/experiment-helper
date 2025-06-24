@@ -117,10 +117,14 @@
       ],
       "eh-tools": [
         {
+          "id": "eh.tabCleaner",
+          "name": "Tab Cleaner",
+          "icon": "$(file)"
+        },
+        {
           "id": "eh.pythonVenvs",
           "name": "Python Venvs",
-          "icon": "$(file)",
-          "visibility": "collapsed"
+          "icon": "$(file)"
         }
       ]
     },
