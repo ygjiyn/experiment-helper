@@ -153,6 +153,12 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'eh.pythonVenvs.deactivate', pythonVenvs.deactivateCallback
 	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.tabCleaner.refresh', () => {
+			tabCleanerProvider.refresh();
+		}
+	));
 }
 
 // This method is called when your extension is deactivated

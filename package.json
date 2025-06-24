@@ -98,6 +98,12 @@
         "title": "Deactivate Python Venv",
         "category": "Experiment Helper",
         "icon": "$(close)"
+      },
+      {
+        "command": "eh.tabCleaner.refresh",
+        "title": "Refresh Tab Cleaner",
+        "category": "Experiment Helper",
+        "icon": "$(refresh)"
       }
     ],
     "views": {
@@ -173,6 +179,11 @@
         {
           "command": "eh.pythonVenvs.deactivate",
           "when": "view == eh.pythonVenvs",
+          "group": "navigation"
+        },
+        {
+          "command": "eh.tabCleaner.refresh",
+          "when": "view == eh.tabCleaner",
           "group": "navigation"
         }
       ],
