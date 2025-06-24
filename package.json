@@ -104,6 +104,12 @@
         "title": "Refresh Tab Cleaner",
         "category": "Experiment Helper",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "eh.tabCleaner.closeThisItemOpenedTabs",
+        "title": "Close Opened Tabs of This Item",
+        "category": "Experiment Helper",
+        "icon": "$(close)"
       }
     ],
     "views": {
@@ -211,6 +217,11 @@
         {
           "command": "eh.submitOptions.deleteSubmitOption",
           "when": "viewItem == submitOptionItem",
+          "group": "inline"
+        },
+        {
+          "command": "eh.tabCleaner.closeThisItemOpenedTabs",
+          "when": "viewItem == tabCleanerItem",
           "group": "inline"
         }
       ]

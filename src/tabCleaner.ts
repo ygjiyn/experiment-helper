@@ -2,6 +2,16 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export const closeThisItemOpenedTabsCallback = async (
+    item?: FolderItem | FileItem
+) => {
+    if (!item) {
+        return;
+    }
+    const numberOfThisOpenedTabs = item.openedTabs.length;
+    await vscode.window.tabGroups.close(item.openedTabs, true);
+    vscode.window.showInformationMessage(`Closed ${numberOfThisOpenedTabs} tab(s).`);
+}
 
 export class TabCleanerProvider implements vscode.TreeDataProvider<FolderItem | FileItem> {
     private readonly onDidChangeTreeDataEventEmitter = new vscode.EventEmitter
@@ -115,6 +125,7 @@ export class FolderItem extends vscode.TreeItem {
         // description: a string containing the number of tabs belong to this folder
         super(label, vscode.TreeItemCollapsibleState.Collapsed);
         this.iconPath = new vscode.ThemeIcon('folder');
+        this.contextValue = 'tabCleanerItem';
     }
 }
 
@@ -129,5 +140,6 @@ export class FileItem extends vscode.TreeItem {
         // since one file may be opened in multiple tabs
         super(label, vscode.TreeItemCollapsibleState.None);
         this.iconPath = new vscode.ThemeIcon('file');
+        this.contextValue = 'tabCleanerItem';
     }
 }
