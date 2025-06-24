@@ -134,7 +134,7 @@ export class FolderItem extends vscode.TreeItem {
     ) {
         // label: the name of the folder
         // description: a string containing the number of tabs belong to this folder
-        super(label, vscode.TreeItemCollapsibleState.Collapsed);
+        super(label, vscode.TreeItemCollapsibleState.Expanded);
         this.iconPath = new vscode.ThemeIcon('folder');
         this.contextValue = 'tabCleanerItem';
     }
