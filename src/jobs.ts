@@ -623,10 +623,7 @@ export const showJobStatusDetailsCallBack = async (item?: JobFolderItem | JobIte
     }
     const uri = vscode.Uri.parse(JobStatusDetailsScheme + ':' + item.jobStatus.id);
     const document = await vscode.workspace.openTextDocument(uri);
-    await vscode.window.showTextDocument(document, {
-        preview: false, 
-        viewColumn: vscode.ViewColumn.Beside
-    });
+    await vscode.window.showTextDocument(document);
 }
 
 export const JobStatusDetailsScheme = 'jobStatusDetails';
@@ -658,24 +655,82 @@ export class JobStatusDetailsProvider implements vscode.TextDocumentContentProvi
             ].join('\n')
         }
 
-        return jobDetailStdout
-            .split('\n')
-            .filter(line => [
-                'job_number:',
-                'submission_time:',
-                'cwd:',
-                'stderr_path_list:',
-                'hard_resource_list:',
-                'job_name:',
-                'stdout_path_list:',
-                'script_file:',
-                'parallel environment:',
-                'submit_cmd:',
-                'start_time',
-                'exec_host_list',
-                'usage',
-                'gpu_usage'
-            ].includes(line.split(/\s+/)[0].trim()))
-            .join('\n');
+        let jobNumber = 'Not Available';
+        let submissionTime = 'Not Available';
+        let cwd = 'Not Available';
+        let hardResourceList = 'Not Available';
+        let scriptFile = 'Not Available';
+        let parallelEnvironment = 'Not Available';
+        let submitCmd = 'Not Available';
+        let startTime: string[] = [];
+        let execHostList: string[] = [];
+        let usage: string[] = [];
+
+        jobDetailStdout.split('\n').forEach(line => {
+            const trimmedLine = line.trim();
+            const lineZero = trimmedLine.split(/\s+/)[0].trim();
+            const lineFromOne = trimmedLine.split(/\s+/).slice(1).join(' ').trim();
+            const lineFromTwo = trimmedLine.split(/\s+/).slice(2).join(' ').trim();
+            switch (lineZero) {
+                case 'job_number:':
+                    jobNumber = lineFromOne;
+                    break;
+                case 'submission_time:':
+                    submissionTime = lineFromOne;
+                    break;
+                case 'cwd:':
+                    cwd = lineFromOne;
+                    break;
+                case 'hard_resource_list:':
+                    hardResourceList = lineFromOne;
+                    break;
+                case 'script_file:':
+                    scriptFile = lineFromOne;
+                    break;
+                case 'parallel':
+                    parallelEnvironment = lineFromTwo;
+                    break;
+                case 'submit_cmd:':
+                    submitCmd = lineFromOne;
+                    break;
+                case 'start_time':
+                    startTime.push(lineFromTwo);
+                    break;
+                case 'exec_host_list':
+                    execHostList.push(lineFromTwo);
+                    break;
+                case 'usage':
+                    usage.push(lineFromTwo);
+                    break;
+            }
+        });
+
+        return [
+            '--------------------------------------------------',
+            'Job Status Details',
+            '--------------------------------------------------',
+            `Job Number: ${jobNumber}`,
+            `Script File: ${scriptFile}`,
+            `Submit CMD: ${submitCmd}`,
+            '--------------------------------------------------', 
+            `Submission Time: ${submissionTime}`,
+            `Start Time: ${
+                startTime.length > 0 ? 
+                startTime.join(' / ') : 'Not Available'
+            }`,
+            '--------------------------------------------------',
+            `CWD: ${cwd}`,
+            `Hard Resource List: ${hardResourceList}`,
+            `Parallel Environment: ${parallelEnvironment}`,
+            `Exec Host List: ${
+                execHostList.length > 0 ? 
+                execHostList.join(' / ') : 'Not Available'
+            }`,
+            `Usage: ${
+                usage.length > 0 ? 
+                usage.join(' / ') : 'Not Available'
+            }`,
+            '--------------------------------------------------'
+        ].join('\n');
     }
 }
