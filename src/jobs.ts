@@ -589,13 +589,20 @@ export class JobItem extends vscode.TreeItem {
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'jobItem';
-        this.description = jobStatus ? jobStatus.id : ''
         if (jobStatus) {
-            this.iconPath = jobStatus.state === 'r' ? 
-                new vscode.ThemeIcon('circle-filled') :
-                new vscode.ThemeIcon('ellipsis');
+            switch (jobStatus.state) {
+                case 'r':
+                    this.iconPath = new vscode.ThemeIcon('circle-large-filled');
+                    break;
+                case 'qw':
+                    this.iconPath = new vscode.ThemeIcon('clock');
+                    break;
+                default:
+                    this.iconPath = new vscode.ThemeIcon('question');
+                    this.description = `Job State: ${jobStatus.state}`;
+            }
         } else {
-            this.iconPath = new vscode.ThemeIcon('circle-outline');
+            this.iconPath = new vscode.ThemeIcon('circle-large-outline');
         }
         this.command = {
             command: 'eh.jobs.showJobScript',

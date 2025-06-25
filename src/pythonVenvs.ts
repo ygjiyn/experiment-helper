@@ -62,7 +62,7 @@ export class PythonVenvItem extends vscode.TreeItem {
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'pythonVenvItem';
-        this.iconPath = new vscode.ThemeIcon('circle-outline');
+        this.iconPath = new vscode.ThemeIcon('symbol-folder');
         this.command = {
             command: 'eh.pythonVenvs.activate',
             title: 'Activate Python Venv',
