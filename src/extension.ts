@@ -16,6 +16,12 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(jobTreeView);
 
+	const jobStatusDetailsProvider = new jobs.JobStatusDetailsProvider(workspaceRoot);
+	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(
+		jobs.JobStatusDetailsScheme, 
+		jobStatusDetailsProvider
+	));
+
 	const submitOptionProvider = new 
 		submitOptions.SubmitOptionProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
@@ -102,6 +108,12 @@ export function activate(context: vscode.ExtensionContext) {
 		'eh.jobs.createJobScriptFromCurrentJobScript', async () => {
 			await jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
 			jobProvider.refresh();
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'eh.jobs.showJobStatusDetails', (item?: jobs.JobItem) => {
+			jobs.showJobStatusDetailsCallBack(item);
 		}
 	));
 

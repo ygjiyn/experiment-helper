@@ -611,3 +611,71 @@ export class JobItem extends vscode.TreeItem {
         }
     }
 }
+
+
+export const showJobStatusDetailsCallBack = async (item?: JobFolderItem | JobItem) => {
+    if (!item || item instanceof JobFolderItem) {
+        return;
+    }
+    if (!item.jobStatus) {
+        vscode.window.showInformationMessage(`Job ${item.label} is not queued.`);
+        return;
+    }
+    const uri = vscode.Uri.parse(JobStatusDetailsScheme + ':' + item.jobStatus.id);
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document, {
+        preview: false, 
+        viewColumn: vscode.ViewColumn.Beside
+    });
+}
+
+export const JobStatusDetailsScheme = 'jobStatusDetails';
+
+export class JobStatusDetailsProvider implements vscode.TextDocumentContentProvider {
+    constructor(public readonly workspaceRoot: string | undefined) {}
+    provideTextDocumentContent(uri: vscode.Uri) {
+        const thisJobId = uri.path;
+        if (!this.workspaceRoot) {
+            return 'Current workspace is empty.';
+        }
+        const thisJobQstatReturn = child_process.spawnSync(
+            'qstat', ['-j', thisJobId], {
+                cwd: this.workspaceRoot,
+                shell: '/bin/bash',
+            }
+        )
+        const isSuccessful = thisJobQstatReturn.status === 0;
+        const jobDetailStdout = thisJobQstatReturn.stdout.toString().trim();
+        const jobDetailStderr = thisJobQstatReturn.stderr.toString().trim();
+
+        if (!isSuccessful) {
+            return [
+                'Error(s) occurred.',
+                'Stdout:',
+                jobDetailStdout,
+                'Stderr:',
+                jobDetailStderr
+            ].join('\n')
+        }
+
+        return jobDetailStdout
+            .split('\n')
+            .filter(line => [
+                'job_number:',
+                'submission_time:',
+                'cwd:',
+                'stderr_path_list:',
+                'hard_resource_list:',
+                'job_name:',
+                'stdout_path_list:',
+                'script_file:',
+                'parallel environment:',
+                'submit_cmd:',
+                'start_time',
+                'exec_host_list',
+                'usage',
+                'gpu_usage'
+            ].includes(line.split(/\s+/)[0].trim()))
+            .join('\n');
+    }
+}
