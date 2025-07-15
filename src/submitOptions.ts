@@ -138,8 +138,8 @@ export class SubmitOptionItem extends vscode.TreeItem {
         this.tooltip = content;
         this.contextValue = 'submitOptionItem';
         this.iconPath = isCurrent ?
-            new vscode.ThemeIcon('circle-large-filled') :
-            new vscode.ThemeIcon('circle-large-outline');
+            new vscode.ThemeIcon('circle-filled') :
+            new vscode.ThemeIcon('circle-outline');
         // no need to register this command in package.json
         this.command = {
             command: 'eh.submitOptions.setCurrentSubmitOption',

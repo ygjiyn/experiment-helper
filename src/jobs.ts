@@ -592,7 +592,7 @@ export class JobItem extends vscode.TreeItem {
         if (jobStatus) {
             switch (jobStatus.state) {
                 case 'r':
-                    this.iconPath = new vscode.ThemeIcon('circle-large-filled');
+                    this.iconPath = new vscode.ThemeIcon('circle-filled');
                     break;
                 case 'qw':
                     this.iconPath = new vscode.ThemeIcon('clock');
@@ -602,7 +602,7 @@ export class JobItem extends vscode.TreeItem {
                     this.description = `Job State: ${jobStatus.state}`;
             }
         } else {
-            this.iconPath = new vscode.ThemeIcon('circle-large-outline');
+            this.iconPath = new vscode.ThemeIcon('circle-outline');
         }
         this.command = {
             command: 'eh.jobs.showJobScript',
