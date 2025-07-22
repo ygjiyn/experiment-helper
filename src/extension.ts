@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import * as jobs from './job-tools/jobsPanel';
-import * as submitOptions from './job-tools/submitOptionsPanel';
-import * as tabCleaner from './other-tools/tabCleanerPanel';
+import * as jobs from './job-tools/jobs';
+import * as submitOptions from './job-tools/submitOptions';
+import * as tabCleaner from './other-tools/tabCleaner';
+import * as otherToolsCommands from './other-tools/commands';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -163,6 +164,18 @@ export function activate(context: vscode.ExtensionContext) {
 		'experiment-helper.tabCleaner.closeAllOpenedTabs', async () => {
 			await tabCleaner.closeAllOpenedTabsCallback();
 			tabCleanerProvider.refresh();
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'experiment-helper.otherToolsCommands.terminalChangeDirectoryToWorkspaceRoot', () => {
+			otherToolsCommands.terminalChangeDirectoryToWorkspaceRootCallback(workspaceRoot);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		'experiment-helper.otherToolsCommands.terminalComputationNodeLogin', () => {
+			otherToolsCommands.terminalComputationNodeLoginCallback();
 		}
 	));
 }

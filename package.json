@@ -110,6 +110,18 @@
         "title": "Close All Opened Tabs",
         "category": "Experiment Helper",
         "icon": "$(close-all)"
+      },
+      {
+        "command": "experiment-helper.otherToolsCommands.terminalChangeDirectoryToWorkspaceRoot",
+        "title": "Experiment Helper: Go To Workspace Root",
+        "category": "Experiment Helper",
+        "icon": "$(home)"
+      },
+      {
+        "command": "experiment-helper.otherToolsCommands.terminalComputationNodeLogin",
+        "title": "Experiment Helper: Computation Node Login",
+        "category": "Experiment Helper",
+        "icon": "$(log-in)"
       }
     ],
     "views": {
@@ -181,6 +193,16 @@
           "command": "experiment-helper.tabCleaner.closeAllOpenedTabs",
           "when": "view == experiment-helper.tabCleaner",
           "group": "navigation@0"
+        },
+        {
+          "command": "experiment-helper.otherToolsCommands.terminalChangeDirectoryToWorkspaceRoot",
+          "when": "view == terminal",
+          "group": "navigation@-2"
+        },
+        {
+          "command": "experiment-helper.otherToolsCommands.terminalComputationNodeLogin",
+          "when": "view == terminal",
+          "group": "navigation@-1"
         }
       ],
       "view/item/context": [
@@ -251,12 +273,12 @@
       "activitybar": [
         {
           "id": "experiment-helper-job-tools",
-          "title": "Experiment Helper: Job Manager",
+          "title": "Experiment Helper: Job Tools",
           "icon": "$(check-all)"
         },
         {
           "id": "experiment-helper-other-tools",
-          "title": "Experiment Helper: Tools",
+          "title": "Experiment Helper: Other Tools",
           "icon": "$(tools)"
         }
       ]
