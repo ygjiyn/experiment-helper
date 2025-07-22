@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import * as jobs from './jobs';
-import * as submitOptions from './submitOptions';
-import * as tabCleaner from './tabCleaner';
+import * as jobs from './jobs/jobs';
+import * as submitOptions from './jobs/submitOptions';
+import * as tabCleaner from './tools/tabCleaner';
 
 
 export function activate(context: vscode.ExtensionContext) {
