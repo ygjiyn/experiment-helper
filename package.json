@@ -113,7 +113,7 @@
       }
     ],
     "views": {
-      "experiment-helper-job-manager": [
+      "experiment-helper-job-tools": [
         {
           "id": "experiment-helper.jobs",
           "name": "Jobs",
@@ -127,7 +127,7 @@
           "initialSize": 1
         }
       ],
-      "experiment-helper-tools": [
+      "experiment-helper-other-tools": [
         {
           "id": "experiment-helper.tabCleaner",
           "name": "Tab Cleaner",
@@ -250,12 +250,12 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "experiment-helper-job-manager",
+          "id": "experiment-helper-job-tools",
           "title": "Experiment Helper: Job Manager",
           "icon": "$(check-all)"
         },
         {
-          "id": "experiment-helper-tools",
+          "id": "experiment-helper-other-tools",
           "title": "Experiment Helper: Tools",
           "icon": "$(tools)"
         }
