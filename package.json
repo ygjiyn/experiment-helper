@@ -147,6 +147,12 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "experiment-helper.jobs",
+        "contents": "Could not analyze the script folder, maybe it do not exist.\nYou could configure the name of the script folder in the settings of this extension.\n[Open Settings](command:workbench.action.openSettings)"
+      }
+    ],
     "menus": {
       "view/title": [
         {

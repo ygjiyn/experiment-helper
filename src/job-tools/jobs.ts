@@ -499,38 +499,43 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         // passed to the script when submitting
         currentResultPath: string
     ) {
-        fs.readdirSync(currentPath, { withFileTypes: true }).forEach((dirent) => {
-            const thisItemPath = path.join(currentPath, dirent.name);
-            if (dirent.isDirectory()) {
-                returnList.push(new JobFolderItem(
-                    dirent.name, 
-                    thisItemPath,
-                    path.join(currentResultPath, dirent.name)
-                ));
-            } else if (dirent.name.endsWith('.sh')) {
-                // TODO 
-                // currently we only handle jobs submitted using this extension
-                // i.e., those whose job names are the absolute paths of scripts
-                const thisJobStatus = jobNameToStatus.get(thisItemPath);
-                returnList.push(new JobItem(
-                    dirent.name, 
-                    thisJobStatus, 
-                    thisItemPath,
-                    // remove '.sh', make it a folder in the results folder
-                    // NOTE
-                    // the user should make sure the script name (without '.sh')
-                    // should not be the same with any existing folder
-                    // this extension does not validate anything related to "results"
-                    // users should handle the "results" folder by themselves
-                    // e.g., creating sub-folders in the "results" folder,
-                    // whether overwrite or keep files in an existing folder, etc.
-                    // the currentResultPath is provided just for the convenience,
-                    // and users no longer need to write the result path 
-                    // of the similar pattern in each script manually
-                    path.join(currentResultPath, dirent.name.slice(0, -'.sh'.length))
-                ));
-            }
-        });
+        try {
+            fs.readdirSync(currentPath, { withFileTypes: true }).forEach((dirent) => {
+                const thisItemPath = path.join(currentPath, dirent.name);
+                if (dirent.isDirectory()) {
+                    returnList.push(new JobFolderItem(
+                        dirent.name, 
+                        thisItemPath,
+                        path.join(currentResultPath, dirent.name)
+                    ));
+                } else if (dirent.name.endsWith('.sh')) {
+                    // TODO not urgent
+                    // currently we only handle jobs submitted using this extension
+                    // i.e., those whose job names are the absolute paths of scripts
+                    const thisJobStatus = jobNameToStatus.get(thisItemPath);
+                    returnList.push(new JobItem(
+                        dirent.name, 
+                        thisJobStatus, 
+                        thisItemPath,
+                        // remove '.sh', make it a folder in the results folder
+                        // NOTE
+                        // the user should make sure the script name (without '.sh')
+                        // should not be the same with any existing folder
+                        // this extension does not validate anything related to "results"
+                        // users should handle the "results" folder by themselves
+                        // e.g., creating sub-folders in the "results" folder,
+                        // whether overwrite or keep files in an existing folder, etc.
+                        // the currentResultPath is provided just for the convenience,
+                        // and users no longer need to write the result path 
+                        // of the similar pattern in each script manually
+                        path.join(currentResultPath, dirent.name.slice(0, -'.sh'.length))
+                    ));
+                }
+            });
+        } catch (err) {
+            // the case that the script folder does no exist
+            // do nothing, returnList is unchanged and thus []
+        }
     }
 
     private getCurrentJobNameToStatus(): Map<string, JobStatus> {
