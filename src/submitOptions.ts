@@ -25,7 +25,7 @@ export const addSubmitOptionCallback = async () => {
         validateInput: (inputString) => {
             const name = inputString.split(':')[0];
             const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-                .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
+                .get('experiment-helper.submitOptions.submitOptionNamesAndContents') as string[];
             const currentNames = submitOptionNamesAndContents
                 .map(submitOptionString => submitOptionString.split(':')[0]);
             return currentNames.includes(name) ? `Name ${name} already exists.` : '';
@@ -35,12 +35,12 @@ export const addSubmitOptionCallback = async () => {
         return;
     }
     const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-        .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
+        .get('experiment-helper.submitOptions.submitOptionNamesAndContents') as string[];
     submitOptionNamesAndContents.push(newSubmitOptionString);
     // note that the update method returns Thenable
     // await until the update finished
     await vscode.workspace.getConfiguration().update(
-        'eh.submitOptions.submitOptionNamesAndContents',
+        'experiment-helper.submitOptions.submitOptionNamesAndContents',
         submitOptionNamesAndContents
     );
 }
@@ -53,9 +53,9 @@ export const deleteSubmitOptionCallback = async (
         return;
     }
     const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-        .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
+        .get('experiment-helper.submitOptions.submitOptionNamesAndContents') as string[];
     await vscode.workspace.getConfiguration().update(
-        'eh.submitOptions.submitOptionNamesAndContents',
+        'experiment-helper.submitOptions.submitOptionNamesAndContents',
         submitOptionNamesAndContents
             .filter(item => item.split(':')[0] !== submitOptionItem.name)
     );
@@ -100,7 +100,7 @@ export class SubmitOptionProvider
         if (!element) {
             this.submitOptionNameToItem = new Map();
             const submitOptionNamesAndContents = vscode.workspace.getConfiguration()
-                .get('eh.submitOptions.submitOptionNamesAndContents') as string[];
+                .get('experiment-helper.submitOptions.submitOptionNamesAndContents') as string[];
             submitOptionNamesAndContents.forEach((nameAndContent) => {
                 const [name, content] = nameAndContent.split(':');
                 this.submitOptionNameToItem.set(
@@ -142,7 +142,7 @@ export class SubmitOptionItem extends vscode.TreeItem {
             new vscode.ThemeIcon('circle-outline');
         // no need to register this command in package.json
         this.command = {
-            command: 'eh.submitOptions.setCurrentSubmitOption',
+            command: 'experiment-helper.submitOptions.setCurrentSubmitOption',
             title: 'Set Current Submit Option',
             arguments: [this]
         }

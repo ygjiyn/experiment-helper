@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as jobs from './jobs';
 import * as submitOptions from './submitOptions';
-import * as pythonVenvs from './pythonVenvs';
 import * as tabCleaner from './tabCleaner';
 
 
@@ -10,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
     	vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
 	const jobProvider = new jobs.JobProvider(workspaceRoot);
-	const jobTreeView = vscode.window.createTreeView('eh.jobs', {
+	const jobTreeView = vscode.window.createTreeView('experiment-helper.jobs', {
 		treeDataProvider: jobProvider,
 		canSelectMany: true
 	});
@@ -25,21 +24,16 @@ export function activate(context: vscode.ExtensionContext) {
 	const submitOptionProvider = new 
 		submitOptions.SubmitOptionProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'eh.submitOptions', submitOptionProvider
-	));
-
-	const pythonVenvProvider = new pythonVenvs.PythonVenvProvider(workspaceRoot);
-	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'eh.pythonVenvs', pythonVenvProvider
+		'experiment-helper.submitOptions', submitOptionProvider
 	));
 
 	const tabCleanerProvider = new tabCleaner.TabCleanerProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'eh.tabCleaner', tabCleanerProvider
+		'experiment-helper.tabCleaner', tabCleanerProvider
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.submit', (item?: jobs.JobItem) => {
+		'experiment-helper.jobs.submit', (item?: jobs.JobItem) => {
 			const currentSubmitOption = submitOptionProvider.getCurrentSubmitOption();
 			jobs.submitCallback(
 				workspaceRoot,
@@ -51,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.submitMultiple', () => {
+		'experiment-helper.jobs.submitMultiple', () => {
 			const currentSubmitOption = submitOptionProvider.getCurrentSubmitOption();
 			jobs.submitMultipleCallback(
 				workspaceRoot, 
@@ -63,62 +57,62 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.refresh', () => {
+		'experiment-helper.jobs.refresh', () => {
 			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.delete', async (item?: jobs.JobItem) => {
+		'experiment-helper.jobs.delete', async (item?: jobs.JobItem) => {
 			await jobs.deleteCallback(workspaceRoot, item);
 			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.deleteMultiple', async () => {
+		'experiment-helper.jobs.deleteMultiple', async () => {
 			await jobs.deleteMultipleCallback(workspaceRoot, jobTreeView.selection);
 			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.showJobOutput', (item?: jobs.JobItem) => {
+		'experiment-helper.jobs.showJobOutput', (item?: jobs.JobItem) => {
 			jobs.showJobOutputOrErrorCallback(workspaceRoot, '_o.txt', item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.showJobError', (item?: jobs.JobItem) => {
+		'experiment-helper.jobs.showJobError', (item?: jobs.JobItem) => {
 			jobs.showJobOutputOrErrorCallback(workspaceRoot, '_e.txt', item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.showJobScript', (item?: jobs.JobItem) => {
+		'experiment-helper.jobs.showJobScript', (item?: jobs.JobItem) => {
 			jobs.showJobScriptCallback(workspaceRoot, item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.closeAllScriptsAndLogs', jobs.closeAllScriptsAndLogsCallback
+		'experiment-helper.jobs.closeAllScriptsAndLogs', jobs.closeAllScriptsAndLogsCallback
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.createJobScriptFromCurrentJobScript', async () => {
+		'experiment-helper.jobs.createJobScriptFromCurrentJobScript', async () => {
 			await jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
 			jobProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.jobs.showJobStatusDetails', (item?: jobs.JobItem) => {
+		'experiment-helper.jobs.showJobStatusDetails', (item?: jobs.JobItem) => {
 			jobs.showJobStatusDetailsCallBack(item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.submitOptions.setCurrentSubmitOption', (
+		'experiment-helper.submitOptions.setCurrentSubmitOption', (
 			item?: submitOptions.SubmitOptionItem
 		) => {
 			submitOptions.setCurrentSubmitOptionCallback(submitOptionProvider, item);
@@ -126,7 +120,7 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.submitOptions.addSubmitOption', async () => {
+		'experiment-helper.submitOptions.addSubmitOption', async () => {
 			// addSubmitOptionCallback is async
 			// be sure to await it here
 			await submitOptions.addSubmitOptionCallback();
@@ -135,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.submitOptions.deleteSubmitOption', (
+		'experiment-helper.submitOptions.deleteSubmitOption', (
 			itemToDelete?: submitOptions.SubmitOptionItem
 		) => {
 			submitOptions.deleteSubmitOptionCallback(
@@ -145,35 +139,19 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.submitOptions.refresh', () => {
+		'experiment-helper.submitOptions.refresh', () => {
 			submitOptionProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.pythonVenvs.refresh', () => {
-			pythonVenvProvider.refresh();
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.pythonVenvs.activate', (item?: pythonVenvs.PythonVenvItem) => {
-			pythonVenvs.activateCallback(item);
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.pythonVenvs.deactivate', pythonVenvs.deactivateCallback
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.tabCleaner.refresh', () => {
+		'experiment-helper.tabCleaner.refresh', () => {
 			tabCleanerProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.tabCleaner.closeThisItemOpenedTabs', async (
+		'experiment-helper.tabCleaner.closeThisItemOpenedTabs', async (
 			item?: tabCleaner.FolderItem | tabCleaner.FileItem
 		) => {
 			await tabCleaner.closeThisItemOpenedTabsCallback(item);
@@ -182,7 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'eh.tabCleaner.closeAllOpenedTabs', async () => {
+		'experiment-helper.tabCleaner.closeAllOpenedTabs', async () => {
 			await tabCleaner.closeAllOpenedTabsCallback();
 			tabCleanerProvider.refresh();
 		}

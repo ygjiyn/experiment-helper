@@ -16,235 +16,206 @@
   "contributes": {
     "commands": [
       {
-        "command": "eh.jobs.submit",
+        "command": "experiment-helper.jobs.submit",
         "title": "Submit Job",
         "category": "Experiment Helper",
         "icon": "$(arrow-up)"
       },
       {
-        "command": "eh.jobs.submitMultiple",
+        "command": "experiment-helper.jobs.submitMultiple",
         "title": "Submit Multiple Jobs",
         "category": "Experiment Helper",
         "icon": "$(arrow-up)"
       },
       {
-        "command": "eh.jobs.refresh",
+        "command": "experiment-helper.jobs.refresh",
         "title": "Refresh \"Jobs\"",
         "category": "Experiment Helper",
         "icon": "$(refresh)"
       },
       {
-        "command": "eh.jobs.delete",
+        "command": "experiment-helper.jobs.delete",
         "title": "Delete Job",
         "category": "Experiment Helper",
         "icon": "$(close)"
       },
       {
-        "command": "eh.jobs.deleteMultiple",
+        "command": "experiment-helper.jobs.deleteMultiple",
         "title": "Delete Multiple Jobs",
         "category": "Experiment Helper",
         "icon": "$(close)"
       },
       {
-        "command": "eh.jobs.showJobOutput",
+        "command": "experiment-helper.jobs.showJobOutput",
         "title": "Show Job Output",
         "category": "Experiment Helper",
         "icon": "$(pass)"
       },
       {
-        "command": "eh.jobs.showJobError",
+        "command": "experiment-helper.jobs.showJobError",
         "title": "Show Job Error",
         "category": "Experiment Helper",
         "icon": "$(error)"
       },
       {
-        "command": "eh.jobs.closeAllScriptsAndLogs",
+        "command": "experiment-helper.jobs.closeAllScriptsAndLogs",
         "title": "Close All Scripts and Logs",
         "category": "Experiment Helper",
         "icon": "$(close-all)"
       },
       {
-        "command": "eh.jobs.createJobScriptFromCurrentJobScript",
+        "command": "experiment-helper.jobs.createJobScriptFromCurrentJobScript",
         "title": "Create Job Script From Current Job Script",
         "category": "Experiment Helper",
         "icon": "$(files)"
       },
       {
-        "command": "eh.jobs.showJobStatusDetails",
+        "command": "experiment-helper.jobs.showJobStatusDetails",
         "title": "Show Job Status Details",
         "category": "Experiment Helper",
         "icon": "$(list-flat)"
       },
       {
-        "command": "eh.submitOptions.addSubmitOption",
+        "command": "experiment-helper.submitOptions.addSubmitOption",
         "title": "Add Submit Option", 
         "category": "Experiment Helper",
         "icon": "$(add)"
       },
       {
-        "command": "eh.submitOptions.deleteSubmitOption",
+        "command": "experiment-helper.submitOptions.deleteSubmitOption",
         "title": "Delete Submit Option",
         "category": "Experiment Helper",
         "icon": "$(close)"
       },
       {
-        "command": "eh.submitOptions.refresh",
+        "command": "experiment-helper.submitOptions.refresh",
         "title": "Refresh \"Job Submit Options\"",
         "category": "Experiment Helper",
         "icon": "$(refresh)"
       },
       {
-        "command": "eh.pythonVenvs.refresh",
-        "title": "Refresh Python Venvs",
-        "category": "Experiment Helper",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "eh.pythonVenvs.deactivate",
-        "title": "Deactivate Python Venv",
-        "category": "Experiment Helper",
-        "icon": "$(close)"
-      },
-      {
-        "command": "eh.tabCleaner.refresh",
+        "command": "experiment-helper.tabCleaner.refresh",
         "title": "Refresh Tab Cleaner",
         "category": "Experiment Helper",
         "icon": "$(refresh)"
       },
       {
-        "command": "eh.tabCleaner.closeThisItemOpenedTabs",
+        "command": "experiment-helper.tabCleaner.closeThisItemOpenedTabs",
         "title": "Close Opened Tabs of This Item",
         "category": "Experiment Helper",
         "icon": "$(close)"
       },
       {
-        "command": "eh.tabCleaner.closeAllOpenedTabs",
+        "command": "experiment-helper.tabCleaner.closeAllOpenedTabs",
         "title": "Close All Opened Tabs",
         "category": "Experiment Helper",
         "icon": "$(close-all)"
       }
     ],
     "views": {
-      "eh-job-manager": [
+      "experiment-helper-job-manager": [
         {
-          "id": "eh.jobs",
+          "id": "experiment-helper.jobs",
           "name": "Jobs",
           "icon": "$(file)",
           "initialSize": 2
         },
         {
-          "id": "eh.submitOptions",
+          "id": "experiment-helper.submitOptions",
           "name": "Submit Options",
           "icon": "$(file)",
           "initialSize": 1
         }
       ],
-      "eh-tools": [
+      "experiment-helper-tools": [
         {
-          "id": "eh.tabCleaner",
+          "id": "experiment-helper.tabCleaner",
           "name": "Tab Cleaner",
-          "icon": "$(file)",
-          "initialSize": 2
-        },
-        {
-          "id": "eh.pythonVenvs",
-          "name": "Python Venvs",
-          "icon": "$(file)",
-          "initialSize": 1
+          "icon": "$(file)"
         }
       ]
     },
     "menus": {
       "view/title": [
         {
-          "command": "eh.jobs.refresh",
-          "when": "view == eh.jobs",
+          "command": "experiment-helper.jobs.refresh",
+          "when": "view == experiment-helper.jobs",
           "group": "navigation@4"
         },
         {
-          "command": "eh.jobs.submitMultiple",
-          "when": "view == eh.jobs",
+          "command": "experiment-helper.jobs.submitMultiple",
+          "when": "view == experiment-helper.jobs",
           "group": "navigation@3"
         },
         {
-          "command": "eh.jobs.deleteMultiple",
-          "when": "view == eh.jobs",
+          "command": "experiment-helper.jobs.deleteMultiple",
+          "when": "view == experiment-helper.jobs",
           "group": "navigation@2"
         },
         {
-          "command": "eh.jobs.closeAllScriptsAndLogs",
-          "when": "view == eh.jobs",
+          "command": "experiment-helper.jobs.closeAllScriptsAndLogs",
+          "when": "view == experiment-helper.jobs",
           "group": "navigation@0"
         },
         {
-          "command": "eh.jobs.createJobScriptFromCurrentJobScript",
-          "when": "view == eh.jobs",
+          "command": "experiment-helper.jobs.createJobScriptFromCurrentJobScript",
+          "when": "view == experiment-helper.jobs",
           "group": "navigation@1"
         },
         {
-          "command": "eh.submitOptions.addSubmitOption",
-          "when": "view == eh.submitOptions",
+          "command": "experiment-helper.submitOptions.addSubmitOption",
+          "when": "view == experiment-helper.submitOptions",
           "group": "navigation@0"
         },
         {
-          "command": "eh.submitOptions.refresh",
-          "when": "view == eh.submitOptions",
+          "command": "experiment-helper.submitOptions.refresh",
+          "when": "view == experiment-helper.submitOptions",
           "group": "navigation@1"
         },
         {
-          "command": "eh.pythonVenvs.refresh",
-          "when": "view == eh.pythonVenvs",
-          "group": "navigation"
-        },
-        {
-          "command": "eh.pythonVenvs.deactivate",
-          "when": "view == eh.pythonVenvs",
-          "group": "navigation"
-        },
-        {
-          "command": "eh.tabCleaner.refresh",
-          "when": "view == eh.tabCleaner",
+          "command": "experiment-helper.tabCleaner.refresh",
+          "when": "view == experiment-helper.tabCleaner",
           "group": "navigation@1"
         },
         {
-          "command": "eh.tabCleaner.closeAllOpenedTabs",
-          "when": "view == eh.tabCleaner",
+          "command": "experiment-helper.tabCleaner.closeAllOpenedTabs",
+          "when": "view == experiment-helper.tabCleaner",
           "group": "navigation@0"
         }
       ],
       "view/item/context": [
         {
-          "command": "eh.jobs.delete",
+          "command": "experiment-helper.jobs.delete",
           "when": "viewItem == jobItem",
           "group": "inline@3"
         },
         {
-          "command": "eh.jobs.submit",
+          "command": "experiment-helper.jobs.submit",
           "when": "viewItem == jobItem",
           "group": "inline@4"
         },
         {
-          "command": "eh.jobs.showJobOutput",
+          "command": "experiment-helper.jobs.showJobOutput",
           "when": "viewItem == jobItem",
           "group": "inline@1"
         },
         {
-          "command": "eh.jobs.showJobError",
+          "command": "experiment-helper.jobs.showJobError",
           "when": "viewItem == jobItem",
           "group": "inline@2"
         },
         {
-          "command": "eh.jobs.showJobStatusDetails",
+          "command": "experiment-helper.jobs.showJobStatusDetails",
           "when": "viewItem == jobItem",
           "group": "inline@0"
         },
         {
-          "command": "eh.submitOptions.deleteSubmitOption",
+          "command": "experiment-helper.submitOptions.deleteSubmitOption",
           "when": "viewItem == submitOptionItem",
           "group": "inline"
         },
         {
-          "command": "eh.tabCleaner.closeThisItemOpenedTabs",
+          "command": "experiment-helper.tabCleaner.closeThisItemOpenedTabs",
           "when": "viewItem == tabCleanerItem",
           "group": "inline"
         }
@@ -254,15 +225,15 @@
       {
         "title": "Experiment Helper",
         "properties": {
-          "eh.jobs.scriptFolderRelativePath": {
+          "experiment-helper.jobs.scriptFolderRelativePath": {
             "type": "string",
             "default": "scripts"
           },
-          "eh.jobs.resultFolderRelativePath": {
+          "experiment-helper.jobs.resultFolderRelativePath": {
             "type": "string",
             "default": "results"
           },
-          "eh.submitOptions.submitOptionNamesAndContents": {
+          "experiment-helper.submitOptions.submitOptionNamesAndContents": {
             "type": "array",
             "default": [
               "h100:-S /bin/bash -cwd -l h100=1,s_vmem=100G -pe def_slot 10",
@@ -272,10 +243,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "eh.pythonVenvs.venvFolderPrefix": {
-            "type": "string",
-            "default": ".venv"
           }
         }
       }
@@ -283,12 +250,12 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "eh-job-manager",
+          "id": "experiment-helper-job-manager",
           "title": "Experiment Helper: Job Manager",
           "icon": "$(check-all)"
         },
         {
-          "id": "eh-tools",
+          "id": "experiment-helper-tools",
           "title": "Experiment Helper: Tools",
           "icon": "$(tools)"
         }

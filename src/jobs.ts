@@ -461,12 +461,12 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         }
 
         const scriptFolderRelativePath = vscode.workspace.getConfiguration()
-            .get('eh.jobs.scriptFolderRelativePath') as string;
+            .get('experiment-helper.jobs.scriptFolderRelativePath') as string;
         const scriptFolderPath = path.join(
             this.workspaceRoot, scriptFolderRelativePath
         );
         const resultFolderRelativePath = vscode.workspace.getConfiguration()
-            .get('eh.jobs.resultFolderRelativePath') as string;
+            .get('experiment-helper.jobs.resultFolderRelativePath') as string;
         const resultFolderPath = path.join(
             this.workspaceRoot, resultFolderRelativePath
         );
@@ -605,7 +605,7 @@ export class JobItem extends vscode.TreeItem {
             this.iconPath = new vscode.ThemeIcon('circle-outline');
         }
         this.command = {
-            command: 'eh.jobs.showJobScript',
+            command: 'experiment-helper.jobs.showJobScript',
             title: 'Show Job Script',
             arguments: [this]
         }
