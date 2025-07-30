@@ -172,12 +172,6 @@ export function activate(context: vscode.ExtensionContext) {
 			otherToolsCommands.terminalChangeDirectoryToWorkspaceRootCallback(workspaceRoot);
 		}
 	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.otherToolsCommands.terminalComputationNodeLogin', () => {
-			otherToolsCommands.terminalComputationNodeLoginCallback();
-		}
-	));
 }
 
 // This method is called when your extension is deactivated

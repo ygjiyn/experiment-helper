@@ -1,9 +1,12 @@
 {
   "name": "experiment-helper",
   "displayName": "Experiment Helper",
-  "publisher": "Jim",
+  "publisher": "jiyuan-yang",
+  "author": {
+    "name": "Jiyuan Yang"
+  },
   "description": "",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "repository": {},
   "engines": {
     "vscode": "^1.101.0"
@@ -116,12 +119,6 @@
         "title": "Experiment Helper: Go To Workspace Root",
         "category": "Experiment Helper",
         "icon": "$(home)"
-      },
-      {
-        "command": "experiment-helper.otherToolsCommands.terminalComputationNodeLogin",
-        "title": "Experiment Helper: Computation Node Login",
-        "category": "Experiment Helper",
-        "icon": "$(log-in)"
       }
     ],
     "views": {
@@ -202,11 +199,6 @@
         },
         {
           "command": "experiment-helper.otherToolsCommands.terminalChangeDirectoryToWorkspaceRoot",
-          "when": "view == terminal",
-          "group": "navigation@-2"
-        },
-        {
-          "command": "experiment-helper.otherToolsCommands.terminalComputationNodeLogin",
           "when": "view == terminal",
           "group": "navigation@-1"
         }
