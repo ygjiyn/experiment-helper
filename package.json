@@ -144,7 +144,15 @@
     "viewsWelcome": [
       {
         "view": "experiment-helper.jobs",
-        "contents": "Could not analyze the script folder, maybe it do not exist.\nYou could configure the name of the script folder in the settings of this extension.\n[Open Settings](command:workbench.action.openSettings)"
+        "contents": "Failed to analyze the script folder.\nCheck and configure its name.\n[Open Settings](command:workbench.action.openSettings)"
+      },
+      {
+        "view": "experiment-helper.submitOptions",
+        "contents": "No submit options.\n[Add Submit Option](command:experiment-helper.submitOptions.addSubmitOption)"
+      },
+      {
+        "view": "experiment-helper.tabCleaner",
+        "contents": "No tabs currently."
       }
     ],
     "menus": {
