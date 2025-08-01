@@ -324,6 +324,23 @@ export const createJobScriptFromCurrentJobScriptCallback = async (
     );
 }
 
+export const copyJupyterUrlToClipboardCallback = async (
+    item?: JobFolderItem | JobItem
+) => {
+    if (!item || item instanceof JobFolderItem) {
+        return;
+    }
+    
+    const jupyterUrl = item.jupyterUrl;
+    if (!jupyterUrl) {
+        vscode.window.showInformationMessage('Could not find Jupyter URL.');
+        return
+    }
+
+    await vscode.env.clipboard.writeText(jupyterUrl);
+    vscode.window.showInformationMessage('Jupyter URL is copied to the clipboard.');
+}
+
 function submitOneJob(
     workspaceRoot: string,
     submitOption: string,
@@ -437,6 +454,22 @@ function waitConfirmDeleteJob(second: number): Thenable<boolean> {
     })
 }
 
+async function getJupyterUrlFromLog(logPath: string) {
+    try {
+        const file = await fs.promises.open(logPath);
+        for await (const line of file.readLines()) {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith('http://') && 
+                !trimmedLine.startsWith('http://127.0.0.1')) {
+                return trimmedLine;
+            }
+        }
+        return undefined;
+    } catch (err) {
+        return undefined;
+    }
+}
+
 export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobItem> {
     private readonly onDidChangeTreeDataEventEmitter = new vscode.EventEmitter
         <void | JobFolderItem | JobItem | (JobFolderItem | JobItem)[] | null | undefined>();
@@ -452,7 +485,7 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         return element;
     }
 
-    getChildren(element?: JobFolderItem | JobItem | undefined) {
+    async getChildren(element?: JobFolderItem | JobItem | undefined) {
         if (!this.workspaceRoot) {
             vscode.window.showInformationMessage(
                 'Current workspace is empty.'
@@ -475,14 +508,14 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
 
         const returnList: (JobFolderItem | JobItem)[] = [];
         if (!element) {
-            this.readAndHanderCurrentPath(
+            await this.readAndHanderCurrentPath(
                 scriptFolderPath, 
                 jobNameToStatus, 
                 returnList,
                 resultFolderPath
             );
         } else if (element instanceof JobFolderItem) {
-            this.readAndHanderCurrentPath(
+            await this.readAndHanderCurrentPath(
                 element.itemPath, 
                 jobNameToStatus, 
                 returnList,
@@ -492,7 +525,7 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         return Promise.resolve(returnList);
     }
 
-    private readAndHanderCurrentPath(
+    private async readAndHanderCurrentPath(
         currentPath: string, 
         jobNameToStatus: Map<string, JobStatus>,
         returnList: (JobFolderItem | JobItem)[],
@@ -502,7 +535,10 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         const startJupyterScriptPrefix = vscode.workspace.getConfiguration()
             .get('experiment-helper.jobs.startJupyterScriptPrefix') as string;
         try {
-            fs.readdirSync(currentPath, { withFileTypes: true }).forEach((dirent) => {
+            const direntList = fs.readdirSync(currentPath, { withFileTypes: true });
+            for (let i = 0; i < direntList.length; ++i) {
+                const dirent = direntList[i];
+
                 const thisItemPath = path.join(currentPath, dirent.name);
                 if (dirent.isDirectory()) {
                     returnList.push(new JobFolderItem(
@@ -538,6 +574,11 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
                     const thisIsStartJupyterScript = dirent.name
                         .startsWith(startJupyterScriptPrefix);
 
+                    let thisJupyterUrl: string | undefined = undefined;
+                    if (thisIsStartJupyterScript) {
+                        thisJupyterUrl = await getJupyterUrlFromLog(thisScriptErrorLogPath);
+                    }
+
                     returnList.push(new JobItem(
                         dirent.name, 
                         thisJobStatus, 
@@ -556,10 +597,11 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
                         path.join(currentResultPath, dirent.name.slice(0, -'.sh'.length)),
                         thisHasOutputLog,
                         thisHasErrorLog,
-                        thisIsStartJupyterScript
+                        thisIsStartJupyterScript,
+                        thisJupyterUrl
                     ));
                 }
-            });
+            };
         } catch (err) {
             // the case that the script folder does no exist
             // do nothing, returnList is unchanged and thus []
@@ -622,17 +664,24 @@ export class JobItem extends vscode.TreeItem {
         hasOutputLog: boolean,
         hasErrorLog: boolean,
         isStartJupyterScript: boolean,
+        public readonly jupyterUrl: string | undefined
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
         this.contextValue = 'jobItem' + 
             `-hasOutputLog_${hasOutputLog}` + 
             `-hasErrorLog_${hasErrorLog}` +
             `-isStartJupyterScript_${isStartJupyterScript}` +
+            `-hasJupyterUrl_${Boolean(jupyterUrl)}` + 
             `-isSubmitted_${Boolean(jobStatus)}`;
         if (jobStatus) {
             switch (jobStatus.state) {
                 case 'r':
-                    this.iconPath = new vscode.ThemeIcon('circle-filled');
+                    if (jupyterUrl) {
+                        // only isStartJupyterScript could have jupyterUrl
+                        this.iconPath = new vscode.ThemeIcon('notebook-kernel-select');
+                    } else {
+                        this.iconPath = new vscode.ThemeIcon('circle-filled');
+                    }
                     break;
                 case 'qw':
                     this.iconPath = new vscode.ThemeIcon('clock');
@@ -642,7 +691,11 @@ export class JobItem extends vscode.TreeItem {
                     this.description = `Job State: ${jobStatus.state}`;
             }
         } else {
-            this.iconPath = new vscode.ThemeIcon('circle-outline');
+            if (isStartJupyterScript) {
+                this.iconPath = new vscode.ThemeIcon('notebook');
+            } else {
+                this.iconPath = new vscode.ThemeIcon('circle-outline');
+            }
         }
         this.command = {
             command: 'experiment-helper.jobs.showJobScript',

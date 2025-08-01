@@ -76,6 +76,12 @@
         "icon": "$(list-flat)"
       },
       {
+        "command": "experiment-helper.jobs.copyJupyterUrlToClipboard",
+        "title": "Copy Jupyter URL to Clipboard",
+        "category": "Experiment Helper",
+        "icon": "$(copy)"
+      },
+      {
         "command": "experiment-helper.submitOptions.addSubmitOption",
         "title": "Add Submit Option", 
         "category": "Experiment Helper",
@@ -232,6 +238,11 @@
         {
           "command": "experiment-helper.jobs.showJobStatusDetails",
           "when": "viewItem =~ /^jobItem.*-isSubmitted_true.*/",
+          "group": "inline@-1"
+        },
+        {
+          "command": "experiment-helper.jobs.copyJupyterUrlToClipboard",
+          "when": "viewItem =~ /^jobItem.*-hasJupyterUrl_true.*-isSubmitted_true.*/",
           "group": "inline@0"
         },
         {

@@ -113,6 +113,12 @@ export function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
+		'experiment-helper.jobs.copyJupyterUrlToClipboard', (item?: jobs.JobItem) => {
+			jobs.copyJupyterUrlToClipboardCallback(item);
+		}
+	));
+
+	context.subscriptions.push(vscode.commands.registerCommand(
 		'experiment-helper.submitOptions.setCurrentSubmitOption', (
 			item?: submitOptions.SubmitOptionItem
 		) => {
