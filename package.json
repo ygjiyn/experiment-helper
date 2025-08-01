@@ -211,27 +211,27 @@
       "view/item/context": [
         {
           "command": "experiment-helper.jobs.delete",
-          "when": "viewItem == jobItem",
+          "when": "viewItem =~ /^jobItem.*-isSubmitted_true.*/",
           "group": "inline@3"
         },
         {
           "command": "experiment-helper.jobs.submit",
-          "when": "viewItem == jobItem",
+          "when": "viewItem =~ /^jobItem.*-isSubmitted_false.*/",
           "group": "inline@4"
         },
         {
           "command": "experiment-helper.jobs.showJobOutput",
-          "when": "viewItem == jobItem",
+          "when": "viewItem =~ /^jobItem.*-hasOutputLog_true.*/",
           "group": "inline@1"
         },
         {
           "command": "experiment-helper.jobs.showJobError",
-          "when": "viewItem == jobItem",
+          "when": "viewItem =~ /^jobItem.*-hasErrorLog_true.*/",
           "group": "inline@2"
         },
         {
           "command": "experiment-helper.jobs.showJobStatusDetails",
-          "when": "viewItem == jobItem",
+          "when": "viewItem =~ /^jobItem.*-isSubmitted_true.*/",
           "group": "inline@0"
         },
         {
@@ -257,6 +257,10 @@
           "experiment-helper.jobs.resultFolderRelativePath": {
             "type": "string",
             "default": "results"
+          },
+          "experiment-helper.jobs.startJupyterScriptPrefix": {
+            "type": "string",
+            "default": "start_jupyter"
           },
           "experiment-helper.submitOptions.submitOptionNamesAndContents": {
             "type": "array",

@@ -499,6 +499,8 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
         // passed to the script when submitting
         currentResultPath: string
     ) {
+        const startJupyterScriptPrefix = vscode.workspace.getConfiguration()
+            .get('experiment-helper.jobs.startJupyterScriptPrefix') as string;
         try {
             fs.readdirSync(currentPath, { withFileTypes: true }).forEach((dirent) => {
                 const thisItemPath = path.join(currentPath, dirent.name);
@@ -513,6 +515,29 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
                     // currently we only handle jobs submitted using this extension
                     // i.e., those whose job names are the absolute paths of scripts
                     const thisJobStatus = jobNameToStatus.get(thisItemPath);
+
+                    const thisScriptBasePath = thisItemPath.slice(0, -'.sh'.length);
+                    const thisScriptOutputLogPath = thisScriptBasePath + '_o.txt';
+                    const thisScriptErrorLogPath = thisScriptBasePath + '_e.txt';
+
+                    let thisHasOutputLog = true;
+                    let thisHasErrorLog = true;
+
+                    try {
+                        fs.accessSync(thisScriptOutputLogPath);
+                    } catch (err) {
+                        thisHasOutputLog = false;
+                    }
+
+                    try {
+                        fs.accessSync(thisScriptErrorLogPath);
+                    } catch (err) {
+                        thisHasErrorLog = false;
+                    }
+
+                    const thisIsStartJupyterScript = dirent.name
+                        .startsWith(startJupyterScriptPrefix);
+
                     returnList.push(new JobItem(
                         dirent.name, 
                         thisJobStatus, 
@@ -528,7 +553,10 @@ export class JobProvider implements vscode.TreeDataProvider<JobFolderItem | JobI
                         // the currentResultPath is provided just for the convenience,
                         // and users no longer need to write the result path 
                         // of the similar pattern in each script manually
-                        path.join(currentResultPath, dirent.name.slice(0, -'.sh'.length))
+                        path.join(currentResultPath, dirent.name.slice(0, -'.sh'.length)),
+                        thisHasOutputLog,
+                        thisHasErrorLog,
+                        thisIsStartJupyterScript
                     ));
                 }
             });
@@ -590,10 +618,17 @@ export class JobItem extends vscode.TreeItem {
         public readonly jobStatus: JobStatus | undefined,
         // path starting with workspaceRoot
         public readonly itemPath: string,
-        public readonly itemResultPath: string
+        public readonly itemResultPath: string,
+        hasOutputLog: boolean,
+        hasErrorLog: boolean,
+        isStartJupyterScript: boolean,
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
-        this.contextValue = 'jobItem';
+        this.contextValue = 'jobItem' + 
+            `-hasOutputLog_${hasOutputLog}` + 
+            `-hasErrorLog_${hasErrorLog}` +
+            `-isStartJupyterScript_${isStartJupyterScript}` +
+            `-isSubmitted_${Boolean(jobStatus)}`;
         if (jobStatus) {
             switch (jobStatus.state) {
                 case 'r':
