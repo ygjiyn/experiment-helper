@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import * as jobs from './job-tools/jobs';
-import * as submitOptions from './job-tools/submitOptions';
-import * as tabCleaner from './other-tools/tabCleaner';
+import * as jobControlProviders from './job-control/providers';
+import * as jobControlCommands from './job-control/commands';
+import * as jobConfigProviders from './job-config/providers';
+import * as jobConfigCommands from './job-config/commands';
 import * as otherToolsCommands from './other-tools/commands';
 
 
@@ -9,173 +10,145 @@ export function activate(context: vscode.ExtensionContext) {
 	const workspaceRoot = vscode.workspace.workspaceFolders ? 
     	vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
-	const jobProvider = new jobs.JobProvider(workspaceRoot);
-	const jobTreeView = vscode.window.createTreeView('experiment-helper.jobs', {
-		treeDataProvider: jobProvider,
+	const jobControlProvider = new jobControlProviders.JobControlProvider(workspaceRoot);
+	const jobControlTreeView = vscode.window.createTreeView('experimentHelper.jobControl', {
+		treeDataProvider: jobControlProvider,
 		canSelectMany: true
 	});
-	context.subscriptions.push(jobTreeView);
+	context.subscriptions.push(jobControlTreeView);
 
-	const jobStatusDetailsProvider = new jobs.JobStatusDetailsProvider(workspaceRoot);
+	const jobStatusDetailsProvider = 
+		new jobControlProviders.JobStatusDetailsProvider(workspaceRoot);
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(
-		jobs.JobStatusDetailsScheme, 
+		jobControlProviders.JobStatusDetailsScheme, 
 		jobStatusDetailsProvider
 	));
 
-	const submitOptionProvider = new 
-		submitOptions.SubmitOptionProvider(workspaceRoot);
+	const jobConfigProvider = 
+		new jobConfigProviders.JobConfigProvider(workspaceRoot);
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'experiment-helper.submitOptions', submitOptionProvider
-	));
-
-	const tabCleanerProvider = new tabCleaner.TabCleanerProvider(workspaceRoot);
-	context.subscriptions.push(vscode.window.registerTreeDataProvider(
-		'experiment-helper.tabCleaner', tabCleanerProvider
+		'experimentHelper.jobConfig', jobConfigProvider
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.submit', (item?: jobs.JobItem) => {
-			const currentSubmitOption = submitOptionProvider.getCurrentSubmitOption();
-			jobs.submitCallback(
+		'experimentHelper.jobControl.submitSingleJob', 
+		(item: jobControlProviders.JobItem) => {
+			const currentJobConfig = jobConfigProvider.getCurrentJobConfig();
+			jobControlCommands.submitSingleJob(
 				workspaceRoot,
-				currentSubmitOption?.content,
+				currentJobConfig?.content,
 				item
 			);
-			jobProvider.refresh();
+			jobControlProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.submitMultiple', () => {
-			const currentSubmitOption = submitOptionProvider.getCurrentSubmitOption();
-			jobs.submitMultipleCallback(
+		'experimentHelper.jobControl.submitMultipleJobs', 
+		() => {
+			const currentJobConfig = jobConfigProvider.getCurrentJobConfig();
+			jobControlCommands.submitMultipleJobs(
 				workspaceRoot, 
-				currentSubmitOption?.content,
-				jobTreeView.selection
+				currentJobConfig?.content,
+				jobControlTreeView.selection
 			);
-			jobProvider.refresh();
+			jobControlProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.refresh', () => {
-			jobProvider.refresh();
+		'experimentHelper.jobControl.refresh', 
+		() => {
+			jobControlProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.delete', async (item?: jobs.JobItem) => {
-			await jobs.deleteCallback(workspaceRoot, item);
-			jobProvider.refresh();
+		'experimentHelper.jobControl.deleteSingleJob', 
+		async (item: jobControlProviders.JobItem) => {
+			await jobControlCommands.deleteSingleJob(workspaceRoot, item);
+			jobControlProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.deleteMultiple', async () => {
-			await jobs.deleteMultipleCallback(workspaceRoot, jobTreeView.selection);
-			jobProvider.refresh();
+		'experimentHelper.jobControl.deleteMultipleJobs', 
+		async () => {
+			await jobControlCommands.deleteMultipleJobs(workspaceRoot, jobControlTreeView.selection);
+			jobControlProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.showJobOutput', (item?: jobs.JobItem) => {
-			jobs.showJobOutputOrErrorCallback(workspaceRoot, '_o.txt', item);
+		'experimentHelper.jobControl.showJobOutput', 
+		(item: jobControlProviders.JobItem) => {
+			jobControlCommands.showJobOutputOrError(workspaceRoot, '_o.txt', item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.showJobError', (item?: jobs.JobItem) => {
-			jobs.showJobOutputOrErrorCallback(workspaceRoot, '_e.txt', item);
+		'experimentHelper.jobControl.showJobError', 
+		(item: jobControlProviders.JobItem) => {
+			jobControlCommands.showJobOutputOrError(workspaceRoot, '_e.txt', item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.showJobScript', (item?: jobs.JobItem) => {
-			jobs.showJobScriptCallback(workspaceRoot, item);
+		'experimentHelper.jobControl.showJobScript', 
+		(item: jobControlProviders.JobItem) => {
+			jobControlCommands.showJobScript(workspaceRoot, item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.closeAllScriptsAndLogs', jobs.closeAllScriptsAndLogsCallback
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.createJobScriptFromCurrentJobScript', async () => {
-			await jobs.createJobScriptFromCurrentJobScriptCallback(workspaceRoot);
-			jobProvider.refresh();
+		'experimentHelper.jobControl.showJobStatusDetails', 
+		(item: jobControlProviders.JobItem) => {
+			jobControlCommands.showJobStatusDetails(item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.showJobStatusDetails', (item?: jobs.JobItem) => {
-			jobs.showJobStatusDetailsCallBack(item);
+		'experimentHelper.jobControl.copyJupyterUrlToClipboard', 
+		(item: jobControlProviders.JobItem) => {
+			jobControlCommands.copyJupyterUrlToClipboard(item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.jobs.copyJupyterUrlToClipboard', (item?: jobs.JobItem) => {
-			jobs.copyJupyterUrlToClipboardCallback(item);
+		'experimentHelper.jobConfig.setCurrentJobConfig', 
+		(item: jobConfigProviders.JobConfigItem) => {
+			jobConfigProvider.setCurrentJobConfig(item);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.submitOptions.setCurrentSubmitOption', (
-			item?: submitOptions.SubmitOptionItem
-		) => {
-			submitOptions.setCurrentSubmitOptionCallback(submitOptionProvider, item);
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.submitOptions.addSubmitOption', async () => {
-			// addSubmitOptionCallback is async
+		'experimentHelper.jobConfig.addJobConfig', 
+		async () => {
+			// addJobConfig is async
 			// be sure to await it here
-			await submitOptions.addSubmitOptionCallback();
-			submitOptionProvider.refresh();
+			await jobConfigCommands.addJobConfig();
+			jobConfigProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.submitOptions.deleteSubmitOption', (
-			itemToDelete?: submitOptions.SubmitOptionItem
-		) => {
-			submitOptions.deleteSubmitOptionCallback(
-				submitOptionProvider, itemToDelete
+		'experimentHelper.jobConfig.deleteJobConfig', 
+		(itemToDelete: jobConfigProviders.JobConfigItem) => {
+			jobConfigCommands.deleteJobConfig(
+				jobConfigProvider, itemToDelete
 			);
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.submitOptions.refresh', () => {
-			submitOptionProvider.refresh();
+		'experimentHelper.jobConfig.refresh', () => {
+			jobConfigProvider.refresh();
 		}
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.tabCleaner.refresh', () => {
-			tabCleanerProvider.refresh();
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.tabCleaner.closeThisItemOpenedTabs', async (
-			item?: tabCleaner.FolderItem | tabCleaner.FileItem
-		) => {
-			await tabCleaner.closeThisItemOpenedTabsCallback(item);
-			tabCleanerProvider.refresh();
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.tabCleaner.closeAllOpenedTabs', async () => {
-			await tabCleaner.closeAllOpenedTabsCallback();
-			tabCleanerProvider.refresh();
-		}
-	));
-
-	context.subscriptions.push(vscode.commands.registerCommand(
-		'experiment-helper.otherToolsCommands.terminalChangeDirectoryToWorkspaceRoot', () => {
-			otherToolsCommands.terminalChangeDirectoryToWorkspaceRootCallback(workspaceRoot);
+		'experimentHelper.otherTools.ChangeTerminalDirectoryToWorkspaceRoot', () => {
+			otherToolsCommands.ChangeTerminalDirectoryToWorkspaceRoot(workspaceRoot);
 		}
 	));
 }
