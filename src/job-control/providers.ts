@@ -88,7 +88,6 @@ export class JobControlProvider
                         path.join(currentResultPath, dirent.name)
                     ));
                 } else if (dirent.name.endsWith('.sh')) {
-                    // TODO not urgent
                     // currently we only handle jobs submitted using this extension
                     // i.e., those whose job names are the absolute paths of scripts
                     const thisJobStatus = jobNameToStatus.get(thisItemPath);
@@ -170,9 +169,16 @@ export class JobControlProvider
                 shell: '/bin/bash',
             }
             ).stdout.toString().trim();
+
+            const thisJobQstatScriptFileLines = thisJobQstatDetail
+                .split('\n').filter(line => line.startsWith('script_file:'));
+            if (thisJobQstatScriptFileLines.length === 0) {
+                // no script_file line, skip
+                // e.g., the case of QLOGIN
+                return;
+            }
             // only one line starts with 'script_file:'
-            const thisJobScriptFile = thisJobQstatDetail
-                .split('\n').filter(line => line.startsWith('script_file:'))[0]
+            const thisJobScriptFile = thisJobQstatScriptFileLines[0]
                 .trim().split(/\s+/)[1];
             jobNameToStatus.set(thisJobScriptFile, {
                 id: thisJobId,

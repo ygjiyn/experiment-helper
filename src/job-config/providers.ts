@@ -74,7 +74,6 @@ export class JobConfigItem extends vscode.TreeItem {
         this.iconPath = isCurrent ?
             new vscode.ThemeIcon('circle-filled') :
             new vscode.ThemeIcon('circle-outline');
-        // TODO no need to register this command in package.json
         this.command = {
             command: 'experimentHelper.JobConfig.setCurrentJobConfig',
             title: 'Set Current Submit Option',
