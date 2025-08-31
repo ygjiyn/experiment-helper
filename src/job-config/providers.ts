@@ -52,9 +52,9 @@ export class JobConfigProvider
             this.jobConfigNameToItem.get(this.currentJobConfigName) : undefined;
     }
 
-    setCurrentJobConfig(jobConfigItem: JobConfigItem | undefined) {
+    setCurrentJobConfig(jobConfigItemName: string | undefined) {
         this.currentJobConfigName =
-            jobConfigItem ? jobConfigItem.name : undefined;
+            jobConfigItemName ? jobConfigItemName : undefined;
         this.refresh();
     }
 }
@@ -75,9 +75,9 @@ export class JobConfigItem extends vscode.TreeItem {
             new vscode.ThemeIcon('circle-filled') :
             new vscode.ThemeIcon('circle-outline');
         this.command = {
-            command: 'experimentHelper.JobConfig.setCurrentJobConfig',
+            command: 'experimentHelper.jobConfig.setCurrentJobConfig',
             title: 'Set Current Submit Option',
-            arguments: [this]
+            arguments: [this.name]
         };
     }
 }

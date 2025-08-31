@@ -196,27 +196,17 @@ export async function showJobOutputOrError(
     await vscode.window.showTextDocument(textDocument);
 }
 
-export async function showJobScript(
-    workspaceRoot: string | undefined,
-    item: JobItem
-) {
-    if (!workspaceRoot) {
-        vscode.window.showInformationMessage(
-            'Open a workspace first.'
-        );
-        return;
-    }
-
+export async function showJobScript(itemItemPath: string, itemLabel: string) {
     try {
-        fs.accessSync(item.itemPath);
+        fs.accessSync(itemItemPath);
     } catch (err) {
         vscode.window.showInformationMessage(
-            `File ${item.label} does not exist.`
+            `File ${itemLabel} does not exist.`
         );
         return;
     }
 
-    const textDocument = await vscode.workspace.openTextDocument(item.itemPath);
+    const textDocument = await vscode.workspace.openTextDocument(itemItemPath);
     await vscode.window.showTextDocument(textDocument);
 }
 

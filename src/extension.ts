@@ -121,8 +121,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'experimentHelper.jobControl.showJobScript', 
-		(item: jobControlProviders.JobItem) => {
-			jobControlCommands.showJobScript(workspaceRoot, item);
+		(itemItemPath: string, itemLabel: string) => {
+			jobControlCommands.showJobScript(itemItemPath, itemLabel);
 		}
 	));
 
@@ -142,8 +142,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'experimentHelper.jobConfig.setCurrentJobConfig', 
-		(item: jobConfigProviders.JobConfigItem) => {
-			jobConfigProvider.setCurrentJobConfig(item);
+		(name: string) => {
+			jobConfigProvider.setCurrentJobConfig(name);
 		}
 	));
 

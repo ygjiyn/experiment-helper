@@ -263,7 +263,7 @@ export class JobItem extends vscode.TreeItem {
         this.command = {
             command: 'experimentHelper.jobControl.showJobScript',
             title: 'Show Job Script',
-            arguments: [this]
+            arguments: [this.itemPath, this.label]
         };
     }
 }
