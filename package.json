@@ -107,7 +107,7 @@
       }
     ],
     "views": {
-      "experiment-helper-job-tools": [
+      "experimentHelperJobTools": [
         {
           "id": "experimentHelper.jobControl",
           "name": "Job Control",
@@ -135,7 +135,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "experiment-helper-job-tools",
+          "id": "experimentHelperJobTools",
           "title": "Experiment Helper: Job Tools",
           "icon": "$(check-all)"
         }
@@ -285,6 +285,10 @@
           "experimentHelper.jobControl.resultsFolderRelativePath": {
             "type": "string",
             "default": "results"
+          },
+          "experimentHelper.jobControl.waitDeleteConfirmationSeconds": {
+            "type": "number",
+            "default": 3
           },
           "experimentHelper.jobControl.startJupyterScriptPrefix": {
             "type": "string",

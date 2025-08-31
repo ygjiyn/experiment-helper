@@ -103,7 +103,10 @@ export async function deleteSingleJob(
         return;
     }
 
-    const isCanceled = await waitConfirmDeleteJob(5);
+    const waitSeconds = vscode.workspace.getConfiguration()
+        .get('experimentHelper.jobControl.waitDeleteConfirmationSeconds') as number;
+
+    const isCanceled = await waitDeleteConfirmation(waitSeconds);
     if (isCanceled) {
         vscode.window.showInformationMessage('Canceled.');
         return;
@@ -128,7 +131,10 @@ export async function deleteMultipleJobs(
         return;
     }
 
-    const isCanceled = await waitConfirmDeleteJob(5);
+    const waitSeconds = vscode.workspace.getConfiguration()
+        .get('experimentHelper.jobControl.waitDeleteConfirmationSeconds') as number;
+
+    const isCanceled = await waitDeleteConfirmation(waitSeconds);
     if (isCanceled) {
         vscode.window.showInformationMessage('Canceled.');
         return;
@@ -323,23 +329,19 @@ function deleteJob(workspaceRoot: string, jobItem: JobItem): CommandStatus {
     };
 }
 
-function waitConfirmDeleteJob(second: number) {
+function waitDeleteConfirmation(seconds: number) {
     return vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
         title: 'Delete Job',
         cancellable: true
     }, async (progress, token) => {
-        const incrementPerStep = 100 / second;
-        for (let i = second; i > 0; --i) {
+        const incrementPerStep = 100 / seconds;
+        for (let i = seconds; i > 0; --i) {
             if (token.isCancellationRequested) {
                 break;
             }
             progress.report({ increment: incrementPerStep, message: `Start in ${i}s.` });
-            await new Promise<void>(resolve => {
-                setTimeout(() => {
-                    resolve();
-                }, 1000);
-            });
+            await new Promise<void>(resolve => setTimeout(resolve, 1000));
         }
         return Promise.resolve(token.isCancellationRequested);
     });
