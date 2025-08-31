@@ -32,7 +32,7 @@ export class JobConfigProvider
         if (!element) {
             this.jobConfigNameToItem = new Map();
             const jobConfigNamesAndContents = vscode.workspace.getConfiguration()
-                .get('experimentHelper.JobConfig.JobConfigNamesAndContents') as string[];
+                .get('experimentHelper.jobConfig.JobConfigNamesAndContents') as string[];
             jobConfigNamesAndContents.forEach((nameAndContent) => {
                 const [name, content] = nameAndContent.split(':');
                 this.jobConfigNameToItem.set(
