@@ -15,6 +15,32 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: jobControlProvider,
 		canSelectMany: true
 	});
+
+	const jobControlRefreshSeconds = vscode.workspace.getConfiguration()
+		.get('experimentHelper.jobControl.jobControlAutoRefreshSeconds') as number;
+	let jobControlRefreshInterval: NodeJS.Timeout | undefined = undefined;
+	const startJobControlAutoRefresh = () => {
+		if (!jobControlRefreshInterval) {
+			jobControlRefreshInterval = setInterval(() => {
+				jobControlProvider.refresh();
+			}, jobControlRefreshSeconds * 1000);
+		}
+	};
+	const stopJobControlAutoRefresh = () => {
+		if (jobControlRefreshInterval) {
+			clearInterval(jobControlRefreshInterval);
+			jobControlRefreshInterval = undefined;
+		}
+	};
+	jobControlTreeView.onDidChangeVisibility((e) => {
+		if (e.visible) {
+			jobControlProvider.refresh();
+			startJobControlAutoRefresh();
+		} else {
+			stopJobControlAutoRefresh();
+		}
+	});
+
 	context.subscriptions.push(jobControlTreeView);
 
 	const jobStatusDetailsProvider = 

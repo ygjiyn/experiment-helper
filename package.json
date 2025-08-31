@@ -290,6 +290,10 @@
             "type": "number",
             "default": 3
           },
+          "experimentHelper.jobControl.jobControlAutoRefreshSeconds": {
+            "type": "number",
+            "default": 5
+          },
           "experimentHelper.jobControl.startJupyterScriptPrefix": {
             "type": "string",
             "default": "start_jupyter"
