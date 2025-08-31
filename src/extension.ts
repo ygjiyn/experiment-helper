@@ -129,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(
 		'experimentHelper.jobControl.showJobStatusDetails', 
 		(item: jobControlProviders.JobItem) => {
-			jobControlCommands.showJobStatusDetails(item);
+			jobControlCommands.showJobStatusDetails(jobStatusDetailsProvider, item);
 		}
 	));
 

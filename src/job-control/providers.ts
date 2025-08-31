@@ -274,6 +274,13 @@ export const JobStatusDetailsScheme = 'jobStatusDetails';
 export class JobStatusDetailsProvider implements vscode.TextDocumentContentProvider {
     constructor(public readonly workspaceRoot: string | undefined) {}
 
+    private readonly onDidChangeEventEmitter = new vscode.EventEmitter<vscode.Uri>();
+    onDidChange = this.onDidChangeEventEmitter.event;
+
+    refresh(uri: vscode.Uri) {
+        this.onDidChangeEventEmitter.fire(uri);
+    }
+
     provideTextDocumentContent(uri: vscode.Uri) {
         const thisJobId = uri.path;
         if (!this.workspaceRoot) {

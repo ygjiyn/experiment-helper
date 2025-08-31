@@ -2,7 +2,7 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { JobFolderItem, JobItem, JobStatusDetailsScheme } from './providers';
+import { JobFolderItem, JobItem, JobStatusDetailsProvider, JobStatusDetailsScheme } from './providers';
 
 
 interface CommandStatus {
@@ -221,12 +221,16 @@ export async function copyJupyterUrlToClipboard(item: JobItem) {
     vscode.window.showInformationMessage('Jupyter URL is copied to the clipboard.');
 }
 
-export async function showJobStatusDetails(item: JobItem) {
+export async function showJobStatusDetails(
+    jobStatusDetailsProvider: JobStatusDetailsProvider,
+    item: JobItem
+) {
     if (!item.jobStatus) {
         vscode.window.showInformationMessage(`Job ${item.label} is not queued.`);
         return;
     }
     const uri = vscode.Uri.parse(JobStatusDetailsScheme + ':' + item.jobStatus.id);
+    jobStatusDetailsProvider.refresh(uri);
     const document = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(document);
 }

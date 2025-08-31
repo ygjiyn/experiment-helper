@@ -288,11 +288,11 @@
           },
           "experimentHelper.jobControl.waitDeleteConfirmationSeconds": {
             "type": "number",
-            "default": 3
+            "default": 5
           },
           "experimentHelper.jobControl.jobControlAutoRefreshSeconds": {
             "type": "number",
-            "default": 5
+            "default": 10
           },
           "experimentHelper.jobControl.startJupyterScriptPrefix": {
             "type": "string",
