@@ -68,7 +68,28 @@ export class JobConfigItem extends vscode.TreeItem {
     ) {
         super(name, vscode.TreeItemCollapsibleState.None);
         this.label = name;
-        this.description = content;
+        let keyConfigs = '/';
+        let memoryConfig: string | undefined = undefined;
+        let slotsConfig: string | undefined = undefined;
+        content.split('-').forEach(part => {
+            const subParts = part.trim().split(/\s+/);
+            if (subParts[0] === 'l' && subParts[1]) {
+                memoryConfig = subParts[1];
+            } else if (
+                subParts[0] === 'pe' 
+                && subParts[1] === 'def_slot' 
+                && subParts[2]
+            ) {
+                slotsConfig = subParts[2];
+            }
+        });
+        if (memoryConfig) {
+            keyConfigs = memoryConfig + keyConfigs;
+        }
+        if (slotsConfig) {
+            keyConfigs = keyConfigs + slotsConfig;
+        }
+        this.description = keyConfigs !== '/' ? keyConfigs : content;
         this.tooltip = content;
         this.contextValue = 'JobConfigItem';
         this.iconPath = isCurrent ?
